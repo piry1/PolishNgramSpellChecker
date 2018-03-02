@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace PolishNgramSpellChecker
 {
-    public class Class1
+    public class SpellChecker : ISpellChecker
     {
+        public IScResponse CheckSentence(string text)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
