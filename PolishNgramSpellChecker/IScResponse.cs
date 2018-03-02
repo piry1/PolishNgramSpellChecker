@@ -5,9 +5,9 @@ namespace PolishNgramSpellChecker
     public interface IScResponse
     {
         string OriginalText { get; }
-        List<string> Words { get; }
+        string[] Words { get; }
         bool IsCorrect { get; }
-        List<int> IncorrectWordsIndexes { get; }
-        List<string> CorrectTextSugestios { get; }
+        int[] IncorrectWordsIndexes { get; }
+        string[] CorrectTextSugestios { get; }
     }
 }
