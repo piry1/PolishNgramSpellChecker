@@ -8,6 +8,8 @@ namespace PolishNgramSpellChecker
         string[] Words { get; }
         bool IsCorrect { get; }
         int[] IncorrectWordsIndexes { get; }
-        string[] CorrectTextSugestios { get; }
+        string[] CorrectTextSugestions { get; }
+        double[] JointsScore { get; }
+        double[] WordsScore { get; }
     }
 }

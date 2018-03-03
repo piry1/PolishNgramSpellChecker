@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Elasticsearch.Net;
 
 namespace PolishNgramSpellChecker
 {
@@ -9,7 +10,9 @@ namespace PolishNgramSpellChecker
         public string[] Words { get; }
         public bool IsCorrect { get; }
         public int[] IncorrectWordsIndexes { get; }
-        public string[] CorrectTextSugestios { get; }
+        public string[] CorrectTextSugestions { get; }
+        public double[] JointsScore { get; }
+        public double[] WordsScore { get; private set; }
 
         public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
         {
@@ -17,7 +20,32 @@ namespace PolishNgramSpellChecker
             Words = words.ToArray();
             IsCorrect = isCorrect;
             IncorrectWordsIndexes = incorrectWordsIndexes.ToArray();
-            CorrectTextSugestios = correctTextSugestios.ToArray();
+            CorrectTextSugestions = correctTextSugestios.ToArray();
+        }
+
+        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<double> jointsScore, IEnumerable<string> correctTextSugestios)
+        {
+            OriginalText = originalText;
+            Words = words.ToArray();
+            IsCorrect = isCorrect;
+            JointsScore = jointsScore.ToArray();
+            CorrectTextSugestions = correctTextSugestios.ToArray();
+            CountWordsScore();
+        }
+
+
+        private void CountWordsScore()
+        {
+            WordsScore = new double[Words.Length];
+            for (int i = 0; i < WordsScore.Length; ++i)
+            {
+                if (i == 0)
+                    WordsScore[i] = JointsScore[i];
+                else if (i == WordsScore.Length - 1)
+                    WordsScore[i] = JointsScore.Last();
+                else
+                    WordsScore[i] = (JointsScore[i - 1] + JointsScore[i]) / 2;
+            }
         }
     }
 }
