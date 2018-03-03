@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using PolishNgramSpellChecker.Database;
+using PolishNgramSpellChecker.Params;
 
 namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
 {
@@ -11,7 +12,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             Elastic.SetConnection();
         }
 
-        public IScResponse CheckText(string text)
+        public IScResponse CheckText(string text, ISpellCheckerParams spellParams)
         {
             return Check(text);
         }

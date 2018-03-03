@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Elasticsearch.Net;
 using System.Linq;
 using Nest;
+using PolishNgramSpellChecker.Params;
 
 namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
 {
@@ -14,33 +15,28 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             Database.Elastic.SetConnection();
         }
 
-        public IScResponse CheckText(string text)
+        public IScResponse CheckText(string text, ISpellCheckerParams spellParams)
         {
             var words = text.Trim().Split(' ');
-            double[] jointsScore = new double[words.Length - 1];
-
-            double CountScore(double d, double n) => d;
-            double countScore2(double d, double n) => Math.Pow(10, n) * d / 1000;
-
-            jointsScore = Check2(words, jointsScore, 2, false, CountScore);
+            var jointsScore = new double[words.Length - 1];
+            jointsScore = Check2(words, jointsScore, spellParams);
             var isCorrect = IsSentenceCorrect(jointsScore);
             return new ScResponse(text, words, isCorrect, jointsScore, new List<string>());
-            //return null;
-            // return Check(text, 4);
         }
 
-        private double[] Check2(string[] words, double[] jointsScore, int ngramCount, bool ordered, Func<double, double, double> countScoreFunc)
+        public double[] Check2(string[] words, double[] jointsScore, ISpellCheckerParams spellParams)
         {
-            for (int i = 0; i < words.Length + 1 - ngramCount; ++i)
+            var n = spellParams.N;
+            for (int i = 0; i < words.Length + 1 - n; ++i)
             {
                 string sentence = string.Empty;
-                for (int j = i; j < i + ngramCount; ++j) // first order
+                for (int j = i; j < i + n; ++j) // first order
                     sentence += words[j] + " ";
 
                 sentence = sentence.TrimEnd();
-                var nCount = Database.Elastic.NgramNvalue(sentence, ordered);
-                var score = countScoreFunc(nCount, ngramCount);
-                SetJointsScore(ref jointsScore, i, ngramCount - 1, score);
+                var nCount = Database.Elastic.NgramNvalue(sentence, spellParams.OrderedMatch);
+                var score = spellParams.ScoreCountFunc(nCount, n);
+                SetJointsScore(ref jointsScore, i, n - 1, score);
             }
 
             return jointsScore;
@@ -50,6 +46,15 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
         {
             return !jointsScore.Contains(0);
         }
+
+        private static void SetJointsScore(ref double[] jointsScore, int start, int count, double score)
+        {
+            for (int i = start; i < count + start; ++i)
+                if (jointsScore[i] < score)
+                    jointsScore[i] = score;
+        }
+
+        #region Old unused methods
 
         private IScResponse Check(string text, int n, int space = 1)
         {
@@ -108,13 +113,6 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             return ngrams;
         }
 
-        private static void SetJointsScore(ref double[] jointsScore, int start, int count, double score)
-        {
-            for (int i = start; i < count + start; ++i)
-                if (jointsScore[i] < score)
-                    jointsScore[i] = score;
-        }
-
         private static int GetMaxSpace(int n, int space, string[] words, int i)
         {
             while (space > 0)
@@ -125,5 +123,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             }
             return space;
         }
+
+        #endregion
     }
 }

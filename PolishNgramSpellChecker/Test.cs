@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
+using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
 
 namespace PolishNgramSpellChecker
@@ -26,7 +27,12 @@ namespace PolishNgramSpellChecker
                 //Console.WriteLine(res);
                 //res = Elastic.NgramNoOrderValue(text);
                 //Console.WriteLine(res);
-                var result = snc.CheckText(text);
+                SpellCheckerParams spellParams = new SpellCheckerParams()
+                {
+                    OrderedMatch = false,
+                    N = 2
+                };
+                var result = mnd.CheckText(text, spellParams);
 
                 Console.WriteLine("-----------------------------------------");
                 Console.WriteLine($"result: {result.IsCorrect}");
@@ -41,7 +47,7 @@ namespace PolishNgramSpellChecker
                         Console.ForegroundColor = ConsoleColor.Magenta;
                     else if (result.WordsScore[i] <= 10)
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                    
+
 
                     Console.Write(result.Words[i] + /*$" {result.WordsScore[i]} " +*/ " ");
                     Console.ResetColor();
@@ -55,12 +61,12 @@ namespace PolishNgramSpellChecker
                         else if (result.JointsScore[i] <= 10)
                             Console.ForegroundColor = ConsoleColor.Yellow;
                         else
-                            Console.ForegroundColor = ConsoleColor.Green;                               
+                            Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write(/*result.JointsScore[i] + */"* ");
                         Console.ResetColor();
                     }
 
-                   
+
                 }
                 Console.Write("\n");
 

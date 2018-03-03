@@ -1,4 +1,6 @@
-﻿namespace PolishNgramSpellChecker
+﻿using PolishNgramSpellChecker.Params;
+
+namespace PolishNgramSpellChecker
 {
     public interface ISpellChecker
     {

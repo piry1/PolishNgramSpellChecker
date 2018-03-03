@@ -52,10 +52,14 @@
     <Compile Include="Database\Elastic.cs" />
     <Compile Include="IScResponse.cs" />
     <Compile Include="ISpellChecker.cs" />
+    <Compile Include="Params\ISpellCheckerParams.cs" />
     <Compile Include="Model\Ngram.cs" />
     <Compile Include="NgramSpellCheckAlgorithms\Detection\MultiNgramDetection.cs" />
     <Compile Include="NgramSpellCheckAlgorithms\ISpellCheckAlgorithm.cs" />
     <Compile Include="NgramSpellCheckAlgorithms\Detection\SimpleNgramDetection.cs" />
+    <Compile Include="Params\ScoreCountFunction.cs" />
+    <Compile Include="Params\ScoreCountFunctions.cs" />
+    <Compile Include="Params\SpellCheckerParams.cs" />
     <Compile Include="ScResponse.cs" />
     <Compile Include="SpellChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
