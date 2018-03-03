@@ -9,5 +9,6 @@ namespace PolishNgramSpellChecker.Params
         int MaxN { get; set; }
         bool OrderedMatch { get; set; }
         Func<double, double, double> ScoreCountFunc { get; set; }
+        DetectionAlgorithm DetectionAlgorithm { get; set; }
     }
 }

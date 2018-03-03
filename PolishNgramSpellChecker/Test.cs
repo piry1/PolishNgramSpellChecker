@@ -16,77 +16,100 @@ namespace PolishNgramSpellChecker
         {
             Console.WriteLine("Start");
             Elastic.SetConnection();
-            var snc = new SimpleNgramDetection();
-            var mnd = new MultiNgramDetection();
+            SpellChecker spellChecker = new SpellChecker();
+
+
+            var spellParamsList = new List<SpellCheckerParams>()
+            {
+                new SpellCheckerParams
+                {
+                    OrderedMatch = true,
+                    N = 2,
+                    MinN = 2,
+                    MaxN = 5,
+                    DetectionAlgorithm = DetectionAlgorithm.Simple,
+                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Standard)
+                },
+                new SpellCheckerParams
+                {
+                    OrderedMatch = false,
+                    N = 2,
+                    MinN = 2,
+                    MaxN = 5,
+                    DetectionAlgorithm = DetectionAlgorithm.Simple,
+                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Standard)
+                },
+                new SpellCheckerParams
+                {
+                    OrderedMatch = true,
+                    N = 2,
+                    MinN = 2,
+                    MaxN = 5,
+                    DetectionAlgorithm = DetectionAlgorithm.Multi,
+                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
+                },
+                new SpellCheckerParams
+                {
+                    OrderedMatch = false,
+                    N = 2,
+                    MinN = 2,
+                    MaxN = 5,
+                    DetectionAlgorithm = DetectionAlgorithm.Multi,
+                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
+                }
+            };
+
+
             while (true)
             {
                 var text = Console.ReadLine();
-
-
-                //var res = Elastic.NgramValue(text);
-                //Console.WriteLine(res);
-                //res = Elastic.NgramNoOrderValue(text);
-                //Console.WriteLine(res);
-                SpellCheckerParams spellParams = new SpellCheckerParams()
-                {
-                    OrderedMatch = false,
-                    N = 2
-                };
-                var result = mnd.CheckText(text, spellParams);
-
                 Console.WriteLine("-----------------------------------------");
-                Console.WriteLine($"result: {result.IsCorrect}");
-                for (int i = 0; i < result.Words.Length; ++i)
+                foreach (var spellParams in spellParamsList)
                 {
-                    //if (res.IncorrectWordsIndexes.Contains(i))
-                    //    Console.ForegroundColor = ConsoleColor.Red;
-
-                    if (result.WordsScore[i] == 0)
-                        Console.ForegroundColor = ConsoleColor.Red;
-                    else if (result.WordsScore[i] <= 1)
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                    else if (result.WordsScore[i] <= 10)
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-
-
-                    Console.Write(result.Words[i] + /*$" {result.WordsScore[i]} " +*/ " ");
-                    Console.ResetColor();
-
-                    if (i < result.JointsScore.Length)
-                    {
-                        if (result.JointsScore[i] == 0)
-                            Console.ForegroundColor = ConsoleColor.Red;
-                        else if (result.JointsScore[i] <= 1)
-                            Console.ForegroundColor = ConsoleColor.Magenta;
-                        else if (result.JointsScore[i] <= 10)
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                        else
-                            Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write(/*result.JointsScore[i] + */"* ");
-                        Console.ResetColor();
-                    }
-
-
+                    var result = spellChecker.CheckSentence(text, spellParams);
+                    //Console.WriteLine($"result: {result.IsCorrect}");
+                    WriteResult(result);
                 }
-                Console.Write("\n");
-
-
-                //var res = snc.CheckText(text);
-                //Console.WriteLine("-----------------------------------------");
-                //Console.WriteLine($"result: {res.IsCorrect}");
-                //for (int i = 0; i < res.Words.Length; ++i)
-                //{
-                //    if (res.IncorrectWordsIndexes.Contains(i))
-                //        Console.ForegroundColor = ConsoleColor.Red;
-                //    Console.Write(res.Words[i] + " ");
-                //    Console.ResetColor();
-                //}
-                //Console.Write("\n");
             }
 
 
             Console.WriteLine("End");
             Console.ReadLine();
+        }
+
+        private static void WriteResult(IScResponse result)
+        {
+            for (int i = 0; i < result.Words.Length; ++i)
+            {
+                //if (res.IncorrectWordsIndexes.Contains(i))
+                //    Console.ForegroundColor = ConsoleColor.Red;
+
+                if (result.WordsScore[i] <= 0)
+                    Console.ForegroundColor = ConsoleColor.Red;
+                else if (result.WordsScore[i] <= 1)
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                else if (result.WordsScore[i] <= 10)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+
+
+                Console.Write(result.Words[i] + /*$" {result.WordsScore[i]} " +*/ " ");
+                Console.ResetColor();
+
+                if (i < result.JointsScore.Length)
+                {
+                    if (result.JointsScore[i] <= 0)
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    else if (result.JointsScore[i] <= 1)
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                    else if (result.JointsScore[i] <= 10)
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    else
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write( /*result.JointsScore[i] + */"* ");
+                    Console.ResetColor();
+                }               
+            }
+            Console.Write("\n");
         }
     }
 }

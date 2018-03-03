@@ -12,7 +12,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
 
         public SimpleNgramDetection()
         {
-            Database.Elastic.SetConnection();
+          //  Database.Elastic.SetConnection();
         }
 
         public IScResponse CheckText(string text, ISpellCheckerParams spellParams)

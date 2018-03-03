@@ -37,6 +37,9 @@ namespace PolishNgramSpellChecker
         private void CountWordsScore()
         {
             WordsScore = new double[Words.Length];
+            if (WordsScore.Length == 1)
+                return;
+
             for (int i = 0; i < WordsScore.Length; ++i)
             {
                 if (i == 0)

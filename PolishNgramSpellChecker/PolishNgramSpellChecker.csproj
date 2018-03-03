@@ -52,6 +52,7 @@
     <Compile Include="Database\Elastic.cs" />
     <Compile Include="IScResponse.cs" />
     <Compile Include="ISpellChecker.cs" />
+    <Compile Include="Params\DetectionAlgorithm.cs" />
     <Compile Include="Params\ISpellCheckerParams.cs" />
     <Compile Include="Model\Ngram.cs" />
     <Compile Include="NgramSpellCheckAlgorithms\Detection\MultiNgramDetection.cs" />
