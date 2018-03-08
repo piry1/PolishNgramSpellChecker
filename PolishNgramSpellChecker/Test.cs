@@ -64,7 +64,7 @@ namespace PolishNgramSpellChecker
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-                Elastic.NgramFuzzyMatch("morze",  new []{"pojadę"});
+                Elastic.NgramFuzzyMatch("zdrowie",  new []{"dzieci"});
 
                 //foreach (var spellParams in spellParamsList)
                 //{

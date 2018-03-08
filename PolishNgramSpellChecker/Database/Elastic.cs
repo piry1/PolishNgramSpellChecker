@@ -38,13 +38,12 @@ namespace PolishNgramSpellChecker.Database
             return result.Total > 0;
         }
 
-        public static double NgramFuzzyMatch(string word, string[] words)
+        public static Dictionary<string, double> NgramFuzzyMatch(string word, string[] words)
         {
-            int n = words.Length + 1;
+            var n = words.Length + 1;
             var stringWords = ArrayToString(words);
-
-            // query
-            var aa = new Nest.SearchDescriptor<Ngram>()
+            #region QUERY
+            var query = new Nest.SearchDescriptor<Ngram>()
                 .Index($"n{n}grams")
                 .Size(100)
                 .Sort(a => a
@@ -61,36 +60,53 @@ namespace PolishNgramSpellChecker.Database
                             .Match(x => x
                                 .Field(f => f.S)
                                 .Query(word)
-                                .Fuzziness(Fuzziness.EditDistance(2))
-                                .PrefixLength(2)
+                                .Fuzziness(Fuzziness.Auto)
+                                .PrefixLength(1)
                                 .FuzzyTranspositions(true)
-                                .MaxExpansions(2000)
+                                .MaxExpansions(1000)
                             )
                         )
                 )
                 );
-            // searching
-            var result = _client.Search<Ngram>(aa);
-
-
-
-            CountPercentage(result);
-            return CountScore(n, result);
+            #endregion
+            var result = _client.Search<Ngram>(query);
+            return CountPercentage(result, words);
         }
 
-        private static void CountPercentage(ISearchResponse<Ngram> result)
+        private static Dictionary<string, double> CountPercentage(ISearchResponse<Ngram> searchResponse, string[] words)
         {
-            int n = 0;
-
-            foreach (var hit in result.Hits)
-                n += hit.Source.N;
-
-            foreach (var hit in result.Hits)
+            var results = new Dictionary<string, double>();
+            var n = searchResponse.Hits.Sum(hit => hit.Source.N);
+            foreach (var hit in searchResponse.Hits)
             {
-                Console.WriteLine((double)hit.Source.N / n + ": " + hit.Source.S);
+                var w = hit.Source.S.Split(' ');
+                var word = string.Empty;
+
+                foreach (var s in w)
+                {
+                    if (!words.Contains(s))
+                    {
+                        word = s;
+                        break;
+                    }
+                }
+
+                double probability = (double)hit.Source.N / n;
+
+                if (word != string.Empty)
+                {
+                    if (!results.ContainsKey(word))
+                        results.Add(word, probability);
+                    else
+                        results[word] += probability;
+                }
+
+
             }
+            foreach (var w in results)
+                Console.WriteLine(w);
 
-
+            return results;
         }
 
 
@@ -101,7 +117,6 @@ namespace PolishNgramSpellChecker.Database
                 result += word + " ";
             return result;
         }
-
 
         public static double NgramNvalue(string text, bool ordered = true)
         {
@@ -155,7 +170,7 @@ namespace PolishNgramSpellChecker.Database
         {
             if (result.Total == 0)
                 return 0;
-            //double score = Math.Pow(10, n) * result.Hits.First().Source.N / 1000;
+            //double score = Math.Pow(10, n) * searchResponse.Hits.First().Source.N / 1000;
             //return score;
             return result.Hits.First().Source.N;
         }
