@@ -64,12 +64,15 @@ namespace PolishNgramSpellChecker
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-                foreach (var spellParams in spellParamsList)
-                {
-                    var result = spellChecker.CheckSentence(text, spellParams);
-                    //Console.WriteLine($"result: {result.IsCorrect}");
-                    WriteResult(result);
-                }
+                Elastic.NgramFuzzyMatch("morze",  new []{"pojadę"});
+
+                //foreach (var spellParams in spellParamsList)
+                //{
+                //    var result = spellChecker.CheckSentence(text, spellParams);
+                //    //Console.WriteLine($"result: {result.IsCorrect}");
+                //    WriteResult(result);
+                //}
+
             }
 
 
@@ -107,7 +110,7 @@ namespace PolishNgramSpellChecker
                         Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write( /*result.JointsScore[i] + */"* ");
                     Console.ResetColor();
-                }               
+                }
             }
             Console.Write("\n");
         }

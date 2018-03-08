@@ -87,7 +87,7 @@ namespace PolishNgramSpellChecker.HttpApi.Server
 
         private static Request ExtractRequest(HttpListenerContext context)
         {
-            byte[] bytes = new byte[256];
+            byte[] bytes = new byte[1024];
             var count = context.Request.InputStream.Read(bytes, 0, bytes.Length);
             var url = context.Request.Url;
 

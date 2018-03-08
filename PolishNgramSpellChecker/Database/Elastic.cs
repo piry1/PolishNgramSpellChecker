@@ -38,6 +38,71 @@ namespace PolishNgramSpellChecker.Database
             return result.Total > 0;
         }
 
+        public static double NgramFuzzyMatch(string word, string[] words)
+        {
+            int n = words.Length + 1;
+            var stringWords = ArrayToString(words);
+
+            // query
+            var aa = new Nest.SearchDescriptor<Ngram>()
+                .Index($"n{n}grams")
+                .Size(100)
+                .Sort(a => a
+                    .Descending(p => p.N))
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(m => m
+                            .Match(x => x
+                                .Field(f => f.S)
+                                .Query(stringWords)
+                                .Operator(Operator.And)
+                            ),
+                            m => m
+                            .Match(x => x
+                                .Field(f => f.S)
+                                .Query(word)
+                                .Fuzziness(Fuzziness.EditDistance(2))
+                                .PrefixLength(2)
+                                .FuzzyTranspositions(true)
+                                .MaxExpansions(2000)
+                            )
+                        )
+                )
+                );
+            // searching
+            var result = _client.Search<Ngram>(aa);
+
+
+
+            CountPercentage(result);
+            return CountScore(n, result);
+        }
+
+        private static void CountPercentage(ISearchResponse<Ngram> result)
+        {
+            int n = 0;
+
+            foreach (var hit in result.Hits)
+                n += hit.Source.N;
+
+            foreach (var hit in result.Hits)
+            {
+                Console.WriteLine((double)hit.Source.N / n + ": " + hit.Source.S);
+            }
+
+
+        }
+
+
+        private static string ArrayToString(string[] words)
+        {
+            string result = string.Empty;
+            foreach (var word in words)
+                result += word + " ";
+            return result;
+        }
+
+
         public static double NgramNvalue(string text, bool ordered = true)
         {
             if (ordered)

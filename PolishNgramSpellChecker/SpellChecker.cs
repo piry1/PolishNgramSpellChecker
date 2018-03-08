@@ -26,7 +26,7 @@ namespace PolishNgramSpellChecker
 
         public SpellChecker()
         {
-        //    Elastic.SetConnection();
+            Elastic.SetConnection();
         }
     }
 }
