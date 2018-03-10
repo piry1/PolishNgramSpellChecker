@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PolishNgramSpellChecker.Database;
+using PolishNgramSpellChecker.NgramSpellCheckAlgorithms;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
 using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
@@ -58,13 +59,19 @@ namespace PolishNgramSpellChecker
                     ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
                 }
             };
-
+            var fuzzy = new FuzzySpellCheck();
 
             while (true)
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-                Elastic.NgramFuzzyMatch("zdrowie",  new []{"dzieci"});
+                fuzzy.CheckText(text, null);
+                //var re = Elastic.NgramFuzzyMatch("zdrowie",  new []{"świat"});
+
+                //foreach (var d in re)
+                //{
+                //    Console.WriteLine(d);
+                //}
 
                 //foreach (var spellParams in spellParamsList)
                 //{

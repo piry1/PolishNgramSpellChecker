@@ -13,6 +13,7 @@ namespace PolishNgramSpellChecker
         public string[] CorrectTextSugestions { get; }
         public double[] JointsScore { get; }
         public double[] WordsScore { get; private set; }
+        public List<string>[] WordsSugestions { get; }
 
         public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
         {

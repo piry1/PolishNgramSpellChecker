@@ -10,5 +10,6 @@ namespace PolishNgramSpellChecker
         string[] CorrectTextSugestions { get; }
         double[] JointsScore { get; }
         double[] WordsScore { get; }
+        List<string>[] WordsSugestions { get; }
     }
 }

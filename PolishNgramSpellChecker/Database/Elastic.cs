@@ -77,18 +77,19 @@ namespace PolishNgramSpellChecker.Database
         {
             var results = new Dictionary<string, double>();
             var n = searchResponse.Hits.Sum(hit => hit.Source.N);
+
             foreach (var hit in searchResponse.Hits)
             {
                 var w = hit.Source.S.Split(' ');
+                for (int i = 0; i < w.Length; ++i)
+                    w[i] = w[i].Trim('.');
                 var word = string.Empty;
 
                 foreach (var s in w)
                 {
-                    if (!words.Contains(s))
-                    {
-                        word = s;
-                        break;
-                    }
+                    if (words.Contains(s)) continue;
+                    word = s;
+                    break;
                 }
 
                 double probability = (double)hit.Source.N / n;
@@ -100,15 +101,12 @@ namespace PolishNgramSpellChecker.Database
                     else
                         results[word] += probability;
                 }
-
-
             }
-            foreach (var w in results)
-                Console.WriteLine(w);
+            //foreach (var w in results)
+            //    Console.WriteLine(w);
 
             return results;
         }
-
 
         private static string ArrayToString(string[] words)
         {
