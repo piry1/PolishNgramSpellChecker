@@ -29,7 +29,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             for (int i = spellParams.MaxN; i >= spellParams.MinN; --i)
             {
                 spellParams.N = i;
-                jointsScore = snd.Check2(words, jointsScore, spellParams);
+                jointsScore = snd.Check(words, jointsScore, spellParams);
             }
 
             return jointsScore;

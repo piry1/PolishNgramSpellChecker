@@ -19,12 +19,22 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
         {
             var words = text.Trim().Split(' ');
             var jointsScore = new double[words.Length - 1];
-            jointsScore = Check2(words, jointsScore, spellParams);
+
+            switch (spellParams.DetectionAlgorithm)
+            {
+                case DetectionAlgorithm.Simple:
+                    jointsScore = Check(words, jointsScore, spellParams);
+                    break;
+                case DetectionAlgorithm.Multi:
+                    jointsScore = CheckMulti(words, jointsScore, spellParams);
+                    break;
+            }
+            
             var isCorrect = IsSentenceCorrect(jointsScore);
             return new ScResponse(text, words, isCorrect, jointsScore, new List<string>());
         }
 
-        public double[] Check2(string[] words, double[] jointsScore, ISpellCheckerParams spellParams)
+        public double[] Check(string[] words, double[] jointsScore, ISpellCheckerParams spellParams)
         {
             var n = spellParams.N;
             for (int i = 0; i < words.Length + 1 - n; ++i)
@@ -42,6 +52,16 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             return jointsScore;
         }
 
+        private double[] CheckMulti(string[] words, double[] jointsScore, ISpellCheckerParams spellParams)
+        {     
+            for (int i = spellParams.MaxN; i >= spellParams.MinN; --i)
+            {
+                spellParams.N = i;
+                jointsScore = Check(words, jointsScore, spellParams);
+            }
+            return jointsScore;
+        }
+
         private bool IsSentenceCorrect(double[] jointsScore)
         {
             return !jointsScore.Contains(0);
@@ -56,7 +76,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
 
         #region Old unused methods
 
-        private IScResponse Check(string text, int n, int space = 1)
+        private IScResponse CheckOld(string text, int n, int space = 1)
         {
             var words = text.Split(' ');
             List<int> errorIndexes = new List<int>();
