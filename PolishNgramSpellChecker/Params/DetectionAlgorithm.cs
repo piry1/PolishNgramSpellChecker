@@ -3,6 +3,7 @@
     public enum DetectionAlgorithm
     {
         Simple,
-        Multi
+        Multi,
+        Fuzzy
     }
 }

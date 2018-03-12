@@ -11,16 +11,21 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
     public class FuzzySpellCheck : ISpellCheckAlgorithm
     {
         private readonly Dictionary<string[], double[]> _results = new Dictionary<string[], double[]>();
+        private readonly Dictionary<string[], Dictionary<string, double>> _memory =
+            new Dictionary<string[], Dictionary<string, double>>();
 
         public IScResponse CheckText(string text, ISpellCheckerParams spellParams)
         {
             _results.Clear();
-            var words = text.Trim().Split(' ');
+            _memory.Clear();
+            var words = text.Trim().ToLower().Split(' ');
+
+            for (int i = 0; i < words.Length; ++i)
+                words[i] = words[i].TrimEnd('.', ',');
+
             var score = new double[words.Length];
-            var jointsScore = new double[words.Length - 1];
-
-            CheckRecursive(words, score);
-
+            CheckRecursive(words.ToArray(), score);
+            //var results = SotrtResults();
 
             //foreach (var result in results)
             //{
@@ -32,7 +37,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             //    Console.Write("\n");
             //}
 
-            return CreateScResponse(text, words);
+            return CreateScResponse(text, text.Trim().Split(' '));
         }
 
         private List<KeyValuePair<string[], double[]>> SotrtResults()
@@ -84,7 +89,20 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 var sideWordsList = GetSurroundingWords(words, wordIndex, maxNgram);
 
                 foreach (var stringse in sideWordsList)
-                    probabilities.Add(Elastic.NgramFuzzyMatch(words[wordIndex], stringse));
+                {
+                    var test = stringse.ToList();
+                    test.Add(words[wordIndex]);
+                    var t = test.ToArray();
+
+                    if (!_memory.ContainsKey(t))
+                    {
+                        var probab = Elastic.NgramFuzzyMatch(words[wordIndex], stringse);
+                        probabilities.Add(probab);
+                        _memory.Add(t, probab);
+                    }
+                    else
+                        probabilities.Add(_memory[t]);
+                }
 
                 possibleWordReplacements = MergeResults(probabilities);
                 maxNgram--;
@@ -167,10 +185,10 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             for (int x = 0; x < results.Length; ++x)
             {
                 results[x] = new List<string>();
-                for (int i = 0; i < resultDic.Count - 1; ++i)
+                for (int i = 0; i < resultDic.Count; ++i)
                 {
                     var word = resultDic[i].Key[x];
-                    if (!results[x].Contains(word))
+                    if (!results[x].Contains(word) /*&& resultDic.Last().Key[x] != word*/)
                         results[x].Add(word);
                 }
             }
@@ -183,6 +201,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             List<string> result = new List<string>();
             foreach (var item in resultDic)
                 result.Add(ArrayToString(item.Key));
+            result.Remove(result.Last());
             return result;
         }
 

@@ -1,4 +1,6 @@
-﻿using PolishNgramSpellChecker.Database;
+﻿using System;
+using PolishNgramSpellChecker.Database;
+using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
 using PolishNgramSpellChecker.Params;
 
@@ -7,10 +9,16 @@ namespace PolishNgramSpellChecker
     public class SpellChecker : ISpellChecker
     {
         public IScResponse CheckSentence(string text, SpellCheckerParams spellCheckerParams)
-        {            
-            var spellChecker = new SimpleNgramDetection();
-            var detectionResponse = spellChecker.CheckText(text, spellCheckerParams);    
-            return detectionResponse;
+        {
+            switch (spellCheckerParams.DetectionAlgorithm)
+            {
+                case DetectionAlgorithm.Fuzzy:
+                    var fuzzy = new FuzzySpellCheck();                 
+                    return fuzzy.CheckText(text, spellCheckerParams);
+                default:
+                    var spellChecker = new SimpleNgramDetection();
+                    return spellChecker.CheckText(text, spellCheckerParams);
+            }
         }
 
         public SpellChecker()

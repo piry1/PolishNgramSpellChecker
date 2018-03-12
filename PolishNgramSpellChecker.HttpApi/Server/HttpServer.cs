@@ -13,7 +13,7 @@ namespace PolishNgramSpellChecker.HttpApi.Server
         private static readonly HttpListener HttpListener = new HttpListener();
         private static Thread _responseThread;
         private static readonly Router Router = new Router();
-        public static int Port { get; } = 5432;
+        public static int Port { get; } = 2222;
         public static string Url { get; } = $"http://localhost:{Port}/";
 
         public static void StartServer()

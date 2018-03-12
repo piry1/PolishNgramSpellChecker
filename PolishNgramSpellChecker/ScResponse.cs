@@ -39,7 +39,7 @@ namespace PolishNgramSpellChecker
             OriginalText = originalText;
             Words = words.ToArray();
             IsCorrect = isCorrect;
-            CorrectTextSugestions = correctTextSugestios.ToArray();
+            //CorrectTextSugestions = correctTextSugestios.ToArray();
             WordsSugestions = wordsSugestions;
             CountWordsScore2();
         }
@@ -65,7 +65,7 @@ namespace PolishNgramSpellChecker
         {
             WordsScore = new double[Words.Length];
             for (int i = 0; i < Words.Length; ++i)
-                WordsScore[i] = WordsSugestions[i].Count == 0 ? 10 : 0;
+                WordsScore[i] = WordsSugestions[i].Count == 1 ? 10 : 0;
         }
     }
 }
