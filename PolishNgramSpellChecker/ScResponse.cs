@@ -34,6 +34,15 @@ namespace PolishNgramSpellChecker
             CountWordsScore();
         }
 
+        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, List<string>[] wordsSugestions)
+        {
+            OriginalText = originalText;
+            Words = words.ToArray();
+            IsCorrect = isCorrect;
+            CorrectTextSugestions = correctTextSugestios.ToArray();
+            WordsSugestions = wordsSugestions;
+            CountWordsScore2();
+        }
 
         private void CountWordsScore()
         {
@@ -50,6 +59,13 @@ namespace PolishNgramSpellChecker
                 else
                     WordsScore[i] = (JointsScore[i - 1] + JointsScore[i]) / 2;
             }
+        }
+
+        private void CountWordsScore2()
+        {
+            WordsScore = new double[Words.Length];
+            for (int i = 0; i < Words.Length; ++i)
+                WordsScore[i] = WordsSugestions[i].Count == 0 ? 10 : 0;
         }
     }
 }

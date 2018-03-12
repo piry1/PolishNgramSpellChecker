@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms;
+using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
 using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
