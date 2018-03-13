@@ -4,6 +4,7 @@
     {
         Simple,
         Multi,
-        Fuzzy
+        Fuzzy,
+        FuzzyI
     }
 }

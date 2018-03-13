@@ -24,7 +24,19 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 words[i] = words[i].TrimEnd('.', ',');
 
             var score = new double[words.Length];
-            CheckRecursive(words.ToArray(), score);
+
+            switch (spellParams.DetectionAlgorithm)
+            {
+                case DetectionAlgorithm.Fuzzy:
+                    Console.WriteLine("FUZZY R " + spellParams.MinScoreSpace);
+                    CheckRecursive(words.ToArray(), score, 0, spellParams.MaxN, spellParams.MinScoreSpace);
+                    return CreateScResponseForRecorsiveCheck(text, text.Trim().Split(' '));
+                case DetectionAlgorithm.FuzzyI:
+                    Console.WriteLine("FUZZY I " + spellParams.MinScoreSpace);
+                    var res = Check(words.ToArray(), score, spellParams.MaxN, spellParams.MinScoreSpace);
+                    return CreateScResponseForIterationCheck(text, text.Trim().Split(' '), res);
+            }
+
             //var results = SotrtResults();
 
             //foreach (var result in results)
@@ -37,7 +49,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             //    Console.Write("\n");
             //}
 
-            return CreateScResponse(text, text.Trim().Split(' '));
+            return null;
         }
 
         private List<KeyValuePair<string[], double[]>> SotrtResults()
@@ -48,7 +60,36 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             return results;
         }
 
-        public void CheckRecursive(string[] words, double[] score, int wordIndex = 0, int maxNgram = 3)
+        private Dictionary<string, double>[] Check(string[] words, double[] score, int maxNgram, double minScoreSpace)
+        {
+            var results = new Dictionary<string, double>[words.Length];
+
+            for (int i = 0; i < words.Length; ++i)
+            {
+                results[i] = new Dictionary<string, double>();
+                var possibleWordReplacements = GetPossibleWordsReplacements(words, i, maxNgram);
+
+                int n = 0;
+                double minScore = possibleWordReplacements.ContainsKey(words[i])
+                    ? possibleWordReplacements[words[i]]
+                    : 0;
+
+                score[i] = minScore;
+                results[i].Add(words[i], minScore);
+
+                foreach (var possibleWord in possibleWordReplacements)
+                {
+                    if (!(possibleWord.Value > minScore + minScoreSpace)) continue;
+                    if (n >= 2 && minScore == 0) continue;
+                    results[i].Add(possibleWord.Key, possibleWord.Value);
+                    ++n;
+                }
+            }
+
+            return results;
+        }
+
+        public void CheckRecursive(string[] words, double[] score, int wordIndex, int maxNgram, double minScoreSpace)
         {
             if (wordIndex == words.Length) // end of recursive algorithm
             {
@@ -57,17 +98,15 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 return;
             }
 
-            var possibleWordReplacements = GetPossibleWordsReplacements(words, wordIndex, ref maxNgram);
-
+            var possibleWordReplacements = GetPossibleWordsReplacements(words, wordIndex, maxNgram);
 
             int n = 0;
-            double minScoreSpace = 0.35;
             double minScore = possibleWordReplacements.ContainsKey(words[wordIndex])
                 ? possibleWordReplacements[words[wordIndex]]
                 : 0;
 
             score[wordIndex] = minScore;
-            CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1); // go recursive for base line
+            CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1, maxNgram, minScoreSpace); // go recursive for base line
 
             foreach (var possibleWord in possibleWordReplacements)
             {
@@ -75,12 +114,12 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 if (n >= 2 && minScore == 0) continue;
                 score[wordIndex] = possibleWord.Value;
                 words[wordIndex] = possibleWord.Key;
-                CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1); // go recursive 
+                CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1, maxNgram, minScoreSpace); // go recursive 
                 ++n;
             }
         }
 
-        private Dictionary<string, double> GetPossibleWordsReplacements(string[] words, int wordIndex, ref int maxNgram)
+        private Dictionary<string, double> GetPossibleWordsReplacements(string[] words, int wordIndex, int maxNgram)
         {
             Dictionary<string, double> possibleWordReplacements = new Dictionary<string, double>();
             while (maxNgram > 1 && possibleWordReplacements.Count == 0)
@@ -138,7 +177,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
 
         private Dictionary<string, double> MergeResults(List<Dictionary<string, double>> probabilities)
         {
-            Dictionary<string, double> result = new Dictionary<string, double>();
+            var result = new Dictionary<string, double>();
 
             foreach (var dictionary in probabilities)
             {
@@ -151,23 +190,14 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 }
             }
 
-
+            int n = probabilities.Count;
             for (int i = 0; i < result.Count; ++i)
-            {
-                int n = 0;
-                foreach (var dictionary in probabilities)
-                {
-                    if (dictionary.ContainsKey(result.Keys.ElementAt(i)))
-                        n++;
-                }
-                //   if (n != probabilities.Count)
                 result[result.Keys.ElementAt(i)] /= n;
-            }
 
             return result;
         }
 
-        private ScResponse CreateScResponse(string text, string[] words)
+        private ScResponse CreateScResponseForRecorsiveCheck(string text, string[] words)
         {
             var isCorrect = _results.Count == 1;
             var results = SotrtResults();
@@ -177,19 +207,28 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             return response;
         }
 
-        private List<string>[] GetSuggestedWords(List<KeyValuePair<string[], double[]>> resultDic)
+        private ScResponse CreateScResponseForIterationCheck(string text, string[] words, Dictionary<string, double>[] suggestions)
         {
-            if (resultDic.Count == 0) return new List<string>[0];
-            List<string>[] results = new List<string>[resultDic.First().Key.Length];
+            var isCorrect = false;
+            var response = new ScResponse(text, words, isCorrect, null, suggestions);
+            return response;
+        }
+
+        private Dictionary<string, double>[] GetSuggestedWords(List<KeyValuePair<string[], double[]>> resultDic)
+        {
+            if (resultDic.Count == 0) return new Dictionary<string, double>[0];
+            Dictionary<string, double>[] results = new Dictionary<string, double>[resultDic.First().Key.Length];
 
             for (int x = 0; x < results.Length; ++x)
             {
-                results[x] = new List<string>();
-                for (int i = 0; i < resultDic.Count; ++i)
+                results[x] = new Dictionary<string, double>();
+                foreach (var dic in resultDic)
                 {
-                    var word = resultDic[i].Key[x];
-                    if (!results[x].Contains(word) /*&& resultDic.Last().Key[x] != word*/)
-                        results[x].Add(word);
+                    var word = dic.Key[x];
+                    var value = dic.Value[x];
+
+                    if (!results[x].ContainsKey(word) /*&& resultDic.Last().Key[x] != word*/)
+                        results[x].Add(word, value);
                 }
             }
 

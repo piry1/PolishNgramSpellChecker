@@ -23,6 +23,7 @@ namespace PolishNgramSpellChecker.HttpApi.Server.Controllers
             public int MinN { get; set; } = 2;
             public int MaxN { get; set; } = 5;
             public bool OrderedMatch { get; set; } = true;
+            public double MinScoreSpace { get; set; } = 0.35;
             public ScoreCountFunctions ScoreCountFunction { get; set; } = ScoreCountFunctions.Standard;
             public DetectionAlgorithm DetectionAlgorithm { get; set; } = DetectionAlgorithm.Simple;
             public string Text { get; set; }
@@ -35,7 +36,8 @@ namespace PolishNgramSpellChecker.HttpApi.Server.Controllers
                     MaxN = this.MaxN,
                     OrderedMatch = this.OrderedMatch,
                     ScoreCountFunc = Params.ScoreCountFunction.GetFunc(this.ScoreCountFunction),
-                    DetectionAlgorithm = this.DetectionAlgorithm
+                    DetectionAlgorithm = this.DetectionAlgorithm,
+                    MinScoreSpace = this.MinScoreSpace
                 };
 
             }

@@ -13,7 +13,8 @@ namespace PolishNgramSpellChecker
             switch (spellCheckerParams.DetectionAlgorithm)
             {
                 case DetectionAlgorithm.Fuzzy:
-                    var fuzzy = new FuzzySpellCheck();                 
+                case DetectionAlgorithm.FuzzyI:
+                    var fuzzy = new FuzzySpellCheck();
                     return fuzzy.CheckText(text, spellCheckerParams);
                 default:
                     var spellChecker = new SimpleNgramDetection();

@@ -13,7 +13,7 @@ namespace PolishNgramSpellChecker
         public string[] CorrectTextSugestions { get; }
         public double[] JointsScore { get; }
         public double[] WordsScore { get; private set; }
-        public List<string>[] WordsSugestions { get; }
+        public Dictionary<string, double>[] WordsSugestions { get; }
 
         public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
         {
@@ -34,7 +34,7 @@ namespace PolishNgramSpellChecker
             CountWordsScore();
         }
 
-        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, List<string>[] wordsSugestions)
+        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, Dictionary<string, double>[] wordsSugestions)
         {
             OriginalText = originalText;
             Words = words.ToArray();
