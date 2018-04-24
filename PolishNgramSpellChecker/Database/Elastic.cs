@@ -42,7 +42,7 @@ namespace PolishNgramSpellChecker.Database
         #region FUZZY DETECTION AND CORRECTION 
         
         // FUZZY MAIN
-        public static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, bool ordered = false, string method = "w")
+        public static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, bool ordered, string method)
         {
             if (!ordered)
             {
@@ -58,7 +58,7 @@ namespace PolishNgramSpellChecker.Database
                 return NgramOrderedFuzzyMatch(idx, words, method);
         }
 
-        public static Dictionary<string, double> NgramOrderedFuzzyMatch(int idx, string[] words, string method = "w")
+        public static Dictionary<string, double> NgramOrderedFuzzyMatch(int idx, string[] words, string method)
         {
             var n = words.Length;
             string searchedWord = words[idx];
@@ -126,7 +126,7 @@ namespace PolishNgramSpellChecker.Database
             return CountPercentage(idx, result);
         }
 
-        public static Dictionary<string, double> NgramNoOrderedFuzzyMatch(string word, string[] words, string method = "w")
+        public static Dictionary<string, double> NgramNoOrderedFuzzyMatch(string word, string[] words, string method)
         {
             var n = words.Length + 1;
             var stringWords = ArrayToString(words);

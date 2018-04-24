@@ -61,38 +61,38 @@ namespace PolishNgramSpellChecker
                 }
             };
             var fuzzy = new FuzzySpellCheck();
-            //SpellCheckerParams param = new SpellCheckerParams();
-            //param.DetectionAlgorithm = DetectionAlgorithm.FuzzyI;
-            //param.MaxN = 2;
 
-           // while (true)
+
+            SpellCheckerParams param = new SpellCheckerParams();
+            param.DetectionAlgorithm = DetectionAlgorithm.Fuzzy;
+            param.MaxN = 3;
+            param.OrderedMatch = true;
+            param.MinScoreSpace = 0;
+            param.Method = "f";
+
+             while (true)
             {
-                //var text = Console.ReadLine();
-                //Console.WriteLine("-----------------------------------------");
-                //fuzzy.CheckText(text, null);
-                string method = "f";
+                var text = Console.ReadLine();
+                Console.WriteLine("-----------------------------------------");
+                var R = fuzzy.CheckText(text, param);
 
-                var re = Elastic.NgramOrderedFuzzyMatch(0, new[] { "zdrowi", "dzieci" }, method);
-
-                foreach (var d in re)
+                foreach(var rr in R.WordsSugestions)
                 {
-                    Console.WriteLine(d);
-                }
-                Console.WriteLine("\n--------------------------------\n");
-                re = Elastic.NgramFuzzyMatch("zdrowi",  new []{"dzieci"},false, method);
+                    foreach (var wowo in rr)
+                        Console.WriteLine(wowo.Value + " " + wowo.Key);
 
-                foreach (var d in re)
-                {
-                    Console.WriteLine(d);
-                }
+                    Console.WriteLine("\n--------------------------------\n");
+                }               
 
-                //foreach (var spellParams in spellParamsList)
+                //string method = "f";
+
+                //var re = Elastic.NgramOrderedFuzzyMatch(0, new[] { "zdrowi", "dzieci" }, method);
+
+                //foreach (var d in re)
                 //{
-                //    var result = spellChecker.CheckSentence(text, spellParams);
-                //    //Console.WriteLine($"result: {result.IsCorrect}");
-                //    WriteResult(result);
+                //    Console.WriteLine(d);
                 //}
-
+                Console.WriteLine("\n--------------------------------\n");              
             }
 
 

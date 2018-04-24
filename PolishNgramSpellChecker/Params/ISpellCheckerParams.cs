@@ -11,5 +11,6 @@ namespace PolishNgramSpellChecker.Params
         double MinScoreSpace { get; set; }
         Func<double, double, double> ScoreCountFunc { get; set; }
         DetectionAlgorithm DetectionAlgorithm { get; set; }
+        string Method { get; set; }
     }
 }

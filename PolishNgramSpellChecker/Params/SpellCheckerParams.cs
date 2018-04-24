@@ -11,10 +11,11 @@ namespace PolishNgramSpellChecker.Params
         public double MinScoreSpace { get; set; } = 0.35;
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
         public DetectionAlgorithm DetectionAlgorithm { get; set; } = DetectionAlgorithm.Simple;
+        public string Method { get; set; }
 
         public override string ToString()
         {
-            return $"N: {N}, MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  detection algorithm: {DetectionAlgorithm}, score space: {MinScoreSpace}";
+            return $"N: {N}, MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  detection algorithm: {DetectionAlgorithm}, score space: {MinScoreSpace}, method: {Method}";
         }
     }
 }
