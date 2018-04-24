@@ -61,18 +61,30 @@ namespace PolishNgramSpellChecker
                 }
             };
             var fuzzy = new FuzzySpellCheck();
+            //SpellCheckerParams param = new SpellCheckerParams();
+            //param.DetectionAlgorithm = DetectionAlgorithm.FuzzyI;
+            //param.MaxN = 2;
 
-            while (true)
+           // while (true)
             {
-                var text = Console.ReadLine();
-                Console.WriteLine("-----------------------------------------");
-                fuzzy.CheckText(text, null);
-                //var re = Elastic.NgramFuzzyMatch("zdrowie",  new []{"świat"});
+                //var text = Console.ReadLine();
+                //Console.WriteLine("-----------------------------------------");
+                //fuzzy.CheckText(text, null);
+                string method = "f";
 
-                //foreach (var d in re)
-                //{
-                //    Console.WriteLine(d);
-                //}
+                var re = Elastic.NgramOrderedFuzzyMatch(0, new[] { "zdrowi", "dzieci" }, method);
+
+                foreach (var d in re)
+                {
+                    Console.WriteLine(d);
+                }
+                Console.WriteLine("\n--------------------------------\n");
+                re = Elastic.NgramFuzzyMatch("zdrowi",  new []{"dzieci"},false, method);
+
+                foreach (var d in re)
+                {
+                    Console.WriteLine(d);
+                }
 
                 //foreach (var spellParams in spellParamsList)
                 //{

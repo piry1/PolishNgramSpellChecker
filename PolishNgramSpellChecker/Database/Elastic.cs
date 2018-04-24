@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Nest;
 using PolishNgramSpellChecker.Model;
@@ -21,15 +22,15 @@ namespace PolishNgramSpellChecker.Database
             _client = new ElasticClient(settings);
         }
 
-        public static bool NgramExist(string words)
+        public static bool NgramExist(string words, bool ordered)
         {
             // query
             var aa = new SearchDescriptor<Ngram>()
-                .Index($"n{words.Split(' ').Length}grams")
+                .Index($"mn{words.Split(' ').Length}grams")
                 .Size(0)
                 .Query(q => q
-                    .MatchPhrase(c => c
-                    .Field(p => p.S)
+                    .Match(c => c
+                    .Field(p => p.w)
                     .Query(words))
                 );
 
@@ -37,14 +38,46 @@ namespace PolishNgramSpellChecker.Database
             var result = _client.Search<Ngram>(aa);
             return result.Total > 0;
         }
-
-        public static Dictionary<string, double> NgramFuzzyMatch(string word, string[] words)
+        
+        #region FUZZY DETECTION AND CORRECTION 
+        
+        // FUZZY MAIN
+        public static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, bool ordered = false, string method = "w")
         {
-            var n = words.Length + 1;
-            var stringWords = ArrayToString(words);
+            if (!ordered)
+            {
+                var word = words[idx];
+                List<string> sWords = new List<string>();
+                for (int i = 0; i < words.Length; ++i)
+                    if (i != idx)
+                        sWords.Add(words[i]);
+
+                return NgramNoOrderedFuzzyMatch(word, sWords.ToArray(), method);
+            }
+            else
+                return NgramOrderedFuzzyMatch(idx, words, method);
+        }
+
+        public static Dictionary<string, double> NgramOrderedFuzzyMatch(int idx, string[] words, string method = "w")
+        {
+            var n = words.Length;
+            string searchedWord = words[idx];
+            Dictionary<int, string> surWords = new Dictionary<int, string>();
+
+            for (int i = 0; i < 5; ++i)
+            {
+                if (i < n)
+                {
+                    if (i != idx)
+                        surWords.Add(i + 1, words[i]);
+                }
+                else
+                    surWords.Add(i + 1, null);
+            }
+
             #region QUERY
             var query = new Nest.SearchDescriptor<Ngram>()
-                .Index($"n{n}grams")
+                .Index($"sn{n}grams")
                 .Size(100)
                 .Sort(a => a
                     .Descending(p => p.N))
@@ -52,13 +85,68 @@ namespace PolishNgramSpellChecker.Database
                     .Bool(b => b
                         .Must(m => m
                             .Match(x => x
-                                .Field(f => f.S)
+                                .Field($"w{surWords.ElementAt(0).Key}")
+                                .Query(surWords.ElementAt(0).Value)
+                                .Operator(Operator.And)
+                            ),
+                            m => m
+                              .Match(x => x
+                                .Field($"w{surWords.ElementAt(1).Key}")
+                                .Query(surWords.ElementAt(1).Value)
+                                .Operator(Operator.And)
+                            ),
+                              m => m
+                              .Match(x => x
+                                .Field($"w{surWords.ElementAt(2).Key}")
+                                .Query(surWords.ElementAt(2).Value)
+                                .Operator(Operator.And)
+                            ),
+                                m => m
+                              .Match(x => x
+                                .Field($"w{surWords.ElementAt(3).Key}")
+                                .Query(surWords.ElementAt(3).Value)
+                                .Operator(Operator.And)
+                            ),
+                            m => m
+                            .Match(x => x
+                                .Field($"{method}{idx + 1}")
+                                .Query(searchedWord)
+                                .Fuzziness(Fuzziness.Auto)
+                                .PrefixLength(1)
+                                .FuzzyTranspositions(true)
+                                .MaxExpansions(1000)
+                            )
+                        )
+                )
+                );
+
+            #endregion
+
+            var result = _client.Search<Ngram>(query);
+            return CountPercentage(idx, result);
+        }
+
+        public static Dictionary<string, double> NgramNoOrderedFuzzyMatch(string word, string[] words, string method = "w")
+        {
+            var n = words.Length + 1;
+            var stringWords = ArrayToString(words);
+            #region QUERY
+            var query = new Nest.SearchDescriptor<Ngram>()
+                .Index($"mn{n}grams")
+                .Size(100)
+                .Sort(a => a
+                    .Descending(p => p.N))
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(m => m
+                            .Match(x => x
+                                .Field(f => f.w)
                                 .Query(stringWords)
                                 .Operator(Operator.And)
                             ),
                             m => m
                             .Match(x => x
-                                .Field(f => f.S)
+                                .Field(method)
                                 .Query(word)
                                 .Fuzziness(Fuzziness.Auto)
                                 .PrefixLength(1)
@@ -68,9 +156,32 @@ namespace PolishNgramSpellChecker.Database
                         )
                 )
                 );
-            #endregion
+            #endregion   
             var result = _client.Search<Ngram>(query);
             return CountPercentage(result, words);
+        }
+
+        private static Dictionary<string, double> CountPercentage(int idx, ISearchResponse<Ngram> searchResponse)
+        {
+            var results = new Dictionary<string, double>();
+            var n = searchResponse.Hits.Sum(hit => hit.Source.N);
+
+            foreach (var hit in searchResponse.Hits)
+            {
+                string word = hit.Source.GetType().GetProperty($"w{idx + 1}").GetValue(hit.Source, null) as string;
+                word = word.Trim('.');
+                double probability = (double)hit.Source.N / n;
+
+                if (word != string.Empty)
+                {
+                    if (!results.ContainsKey(word))
+                        results.Add(word, probability);
+                    else
+                        results[word] += probability;
+                }
+            }
+
+            return results;
         }
 
         private static Dictionary<string, double> CountPercentage(ISearchResponse<Ngram> searchResponse, string[] words)
@@ -80,8 +191,8 @@ namespace PolishNgramSpellChecker.Database
 
             foreach (var hit in searchResponse.Hits)
             {
-                var w = hit.Source.S.Split(' ');
-                for (int i = 0; i < w.Length; ++i)
+                var w = hit.Source.w;
+                for (int i = 0; i < w.Count; ++i)
                     w[i] = w[i].Trim('.');
                 var word = string.Empty;
 
@@ -102,11 +213,11 @@ namespace PolishNgramSpellChecker.Database
                         results[word] += probability;
                 }
             }
-            //foreach (var w in results)
-            //    Console.WriteLine(w);
 
             return results;
         }
+
+        #endregion
 
         private static string ArrayToString(string[] words)
         {
@@ -116,6 +227,7 @@ namespace PolishNgramSpellChecker.Database
             return result;
         }
 
+        // DETECTION MAIN
         public static double NgramNvalue(string text, bool ordered = true)
         {
             if (ordered)
@@ -129,13 +241,13 @@ namespace PolishNgramSpellChecker.Database
             double n = words.Split(' ').Length;
             // query
             var aa = new SearchDescriptor<Ngram>()
-                .Index($"n{n}grams")
+                .Index($"sn{n}grams")
                 .Size(1)
                 .Sort(a => a
                     .Descending(p => p.N))
                 .Query(q => q
                     .MatchPhrase(c => c
-                        .Field(p => p.S)
+                        .Field(p => p.s)
                         .Query(words))
                 );
             // searching
@@ -148,13 +260,13 @@ namespace PolishNgramSpellChecker.Database
             double n = words.Trim().Split(' ').Length;
             // query
             var aa = new SearchDescriptor<Ngram>()
-                .Index($"n{n}grams")
+                .Index($"mn{n}grams")
                 .Size(1)
                 .Sort(a => a
                     .Descending(p => p.N))
                 .Query(q => q
                     .Match(c => c
-                        .Field(p => p.S)
+                        .Field(p => p.w)
                         .Operator(Operator.And)
                         .Query(words))
                 );
@@ -181,7 +293,7 @@ namespace PolishNgramSpellChecker.Database
                 .Size(0)
                 .Query(q => q
                     .Match(c => c
-                        .Field(p => p.S)
+                        .Field(p => p.s)
                         .Operator(Operator.And)
                         .Query(words))
                 );

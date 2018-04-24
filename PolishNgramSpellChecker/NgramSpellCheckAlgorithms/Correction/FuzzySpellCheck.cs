@@ -37,18 +37,6 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                     return CreateScResponseForIterationCheck(text, text.Trim().Split(' '), res);
             }
 
-            //var results = SotrtResults();
-
-            //foreach (var result in results)
-            //{
-            //    Console.Write(result.Value.Sum() + " - ");
-            //    foreach (var s in result.Key)
-            //    {
-            //        Console.Write(s + " ");
-            //    }
-            //    Console.Write("\n");
-            //}
-
             return null;
         }
 
