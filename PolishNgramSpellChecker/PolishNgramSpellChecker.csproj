@@ -62,12 +62,19 @@
     <Compile Include="Params\ScoreCountFunction.cs" />
     <Compile Include="Params\ScoreCountFunctions.cs" />
     <Compile Include="Params\SpellCheckerParams.cs" />
+    <Compile Include="PreFilters\Name.cs" />
+    <Compile Include="PreFilters\NamesFilter.cs" />
+    <Compile Include="PreFilters\TextPreprocesor.cs" />
     <Compile Include="ScResponse.cs" />
     <Compile Include="SpellChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Data\namesDictionary.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

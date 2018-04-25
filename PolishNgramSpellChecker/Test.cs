@@ -9,6 +9,7 @@ using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
 using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
+using PolishNgramSpellChecker.PreFilters;
 
 namespace PolishNgramSpellChecker
 {
@@ -61,37 +62,33 @@ namespace PolishNgramSpellChecker
                 }
             };
             var fuzzy = new FuzzySpellCheck();
-
+          
 
             SpellCheckerParams param = new SpellCheckerParams();
-            param.DetectionAlgorithm = DetectionAlgorithm.Fuzzy;
-            param.MaxN = 3;
+            param.DetectionAlgorithm = DetectionAlgorithm.FuzzyI;
+            param.MaxN = 2;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
             param.Method = "f";
 
-             while (true)
+            while (true)
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
                 var R = fuzzy.CheckText(text, param);
 
-                foreach(var rr in R.WordsSugestions)
+                foreach (var rr in R.WordsSugestions)
                 {
                     foreach (var wowo in rr)
                         Console.WriteLine(wowo.Value + " " + wowo.Key);
 
                     Console.WriteLine("\n--------------------------------\n");
-                }               
+                }
 
-                //string method = "f";
+                //var res = TextPreprocesor.Process(text);
+                //foreach (var r in res)
+                //    Console.WriteLine(r);
 
-                //var re = Elastic.NgramOrderedFuzzyMatch(0, new[] { "zdrowi", "dzieci" }, method);
-
-                //foreach (var d in re)
-                //{
-                //    Console.WriteLine(d);
-                //}
                 Console.WriteLine("\n--------------------------------\n");              
             }
 
