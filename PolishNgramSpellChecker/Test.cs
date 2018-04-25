@@ -62,11 +62,11 @@ namespace PolishNgramSpellChecker
                 }
             };
             var fuzzy = new FuzzySpellCheck();
-          
 
+        
             SpellCheckerParams param = new SpellCheckerParams();
             param.DetectionAlgorithm = DetectionAlgorithm.FuzzyI;
-            param.MaxN = 2;
+            param.MaxN = 3;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
             param.Method = "w";
@@ -75,7 +75,7 @@ namespace PolishNgramSpellChecker
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-                var R = fuzzy.CheckText(text, param);
+                var R = spellChecker.CheckSentence(text, param);
 
                 foreach (var rr in R.WordsSugestions)
                 {

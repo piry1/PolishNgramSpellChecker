@@ -15,12 +15,11 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
         private readonly Dictionary<string[], Dictionary<string, double>> _memory =
             new Dictionary<string[], Dictionary<string, double>>();
 
-        public IScResponse CheckText(string text, ISpellCheckerParams spellParams)
+        public IScResponse CheckText(string[] words, ISpellCheckerParams spellParams)
         {
             _results.Clear();
             _memory.Clear();
 
-            var words = TextPreprocesor.Process(text);
             var score = new double[words.Length];
 
             switch (spellParams.DetectionAlgorithm)
@@ -28,11 +27,11 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 case DetectionAlgorithm.Fuzzy:
                     Console.WriteLine("FUZZY R " + spellParams.MinScoreSpace);
                     CheckRecursive(words.ToArray(), score, 0, spellParams);
-                    return CreateScResponseForRecorsiveCheck(text, text.Trim().Split(' '));
+                    return CreateScResponseForRecorsiveCheck(words);
                 case DetectionAlgorithm.FuzzyI:
                     Console.WriteLine("FUZZY I " + spellParams.MinScoreSpace);
                     var res = Check(words.ToArray(), score, spellParams);
-                    return CreateScResponseForIterationCheck(text, text.Trim().Split(' '), res);
+                    return CreateScResponseForIterationCheck(words, res);
             }
 
             return null;
@@ -46,40 +45,40 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             return results;
         }
 
+        #region CHECK BY ITERATIONS
+
         private Dictionary<string, double>[] Check(string[] words, double[] score, ISpellCheckerParams spellParams)
         {
             var results = new Dictionary<string, double>[words.Length];
 
             for (int i = 0; i < words.Length; ++i)
             {
-                results[i] = new Dictionary<string, double>();
-                var possibleWordReplacements = GetPossibleWordsReplacements(words, i, spellParams.MaxN, spellParams.OrderedMatch, spellParams.Method);
-
-                int n = 0;
-                double minScore = possibleWordReplacements.ContainsKey(words[i])
-                    ? possibleWordReplacements[words[i]]
-                    : 0;
-
-                score[i] = minScore;
-                results[i].Add(words[i], minScore);
-
-                foreach (var possibleWord in possibleWordReplacements)
-                {
-                    if (!(possibleWord.Value > minScore + spellParams.MinScoreSpace)) continue;
-                    if (n >= 2 && minScore == 0) continue;
-                    results[i].Add(possibleWord.Key, possibleWord.Value);
-                    ++n;
-                }
-
-                var myList = results[i].ToList();
-                myList.Sort((pair1, pair2) => pair2.Value.CompareTo(pair1.Value));
-                results[i].Clear();
-                foreach (var o in myList)
-                    results[i].Add(o.Key, o.Value);   
+                var suggestions = GetSuggestions(words, i, spellParams);    // get suggestions for this word
+                results[i] = FillResultsI(words[i], suggestions,            // and fill them in results dictionary 
+                    spellParams.MinScoreSpace, out score[i]);
             }
 
             return results;
         }
+
+        // fill results for iteration method
+        private Dictionary<string, double> FillResultsI(string word, Dictionary<string, double> suggestions, double minScoreSpace, out double score)
+        {
+            var results = new Dictionary<string, double>();
+
+            double minScore = score = suggestions.ContainsKey(word)     // get score for start word
+                 ? suggestions[word] : 0;
+
+            foreach (var possibleWord in suggestions)                   // add suggestions 
+                if (possibleWord.Value > minScore + minScoreSpace)      // if suggestion score is high enough
+                    results.Add(possibleWord.Key, possibleWord.Value);
+
+            results.Add(word, minScore);                                // and add start word at the end
+
+            return results;
+        }
+
+        #endregion
 
         public void CheckRecursive(string[] words, double[] score, int wordIndex, ISpellCheckerParams spellParams)
         {
@@ -90,7 +89,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 return;
             }
 
-            var possibleWordReplacements = GetPossibleWordsReplacements(words, wordIndex, spellParams.MaxN, spellParams.OrderedMatch, spellParams.Method);
+            var possibleWordReplacements = GetSuggestions(words, wordIndex, spellParams);
 
             int n = 0;
             double minScore = possibleWordReplacements.ContainsKey(words[wordIndex])
@@ -111,35 +110,37 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             }
         }
 
-        private Dictionary<string, double> GetPossibleWordsReplacements(string[] words, int wordIndex, int maxNgram, bool ordered, string method)
+        // Get suggestions for word at wordIndex
+        private Dictionary<string, double> GetSuggestions(string[] words, int wordIndex, ISpellCheckerParams spellParams)
         {
-            Dictionary<string, double> possibleWordReplacements = new Dictionary<string, double>();
-            while (maxNgram > 1 && possibleWordReplacements.Count == 0)
+            Dictionary<string, double> results = new Dictionary<string, double>();
+
+            for (int n = spellParams.MaxN; n > 1 && results.Count == 0; n--)    // search from biggest n-gram to smallest
             {
-                var probabilities = new List<Dictionary<string, double>>();
-                var sideWordsList = GetSurroundingWords(words, wordIndex, maxNgram);
-
-                foreach (var stringse in sideWordsList)
-                {
-                    var test = stringse.Value.ToList();
-                    test.Add(words[wordIndex]);
-                    var t = test.ToArray();
-
-                    if (!_memory.ContainsKey(t))
-                    {
-                        var probab = Elastic.NgramFuzzyMatch(stringse.Key, stringse.Value, ordered, method); //Elastic.NgramFuzzyMatch(words[wordIndex], stringse);
-                        probabilities.Add(probab);
-                        _memory.Add(t, probab);
-                    }
-                    else
-                        probabilities.Add(_memory[t]);
-                }
-
-                possibleWordReplacements = MergeResults(probabilities);
-                maxNgram--;
+                var nGrams = GetSurroundingWords(words, wordIndex, n);          // get n-grams with WORD at different positions
+                var suggestionsList = GetSuggestions(nGrams, spellParams);      // get suggestions using these n-grams
+                results = MergeResults(suggestionsList);                        // merge results to single dictionary with suggestions
             }
 
-            return possibleWordReplacements;
+            return results;
+        }
+
+        // get suggestions for word by n-grams with this word at different positions
+        private List<Dictionary<string, double>> GetSuggestions(List<KeyValuePair<int, string[]>> nGrams, ISpellCheckerParams spellParams)
+        {
+            var suggestionsList = new List<Dictionary<string, double>>();
+            foreach (var nGram in nGrams)
+            {
+                if (!_memory.ContainsKey(nGram.Value))
+                {
+                    var suggestions = Elastic.NgramFuzzyMatch(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
+                    suggestionsList.Add(suggestions);
+                    _memory.Add(nGram.Value, suggestions);
+                }
+                else
+                    suggestionsList.Add(_memory[nGram.Value]);
+            }
+            return suggestionsList;
         }
 
         private List<KeyValuePair<int, string[]>> GetSurroundingWords(string[] words, int pos, int max)
@@ -149,7 +150,6 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             var count = max - 1;
             var start = pos - count < 0 ? 0 : pos - count;
             var end = pos + max > words.Length ? words.Length : pos + max;
-
 
             var wordsInRange = new List<string>();
 
@@ -162,7 +162,6 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             }
             pos = pom;
 
-
             for (int i = 0; i <= wordsInRange.Count - max; ++i)
             {
                 string[] tmp = new string[max];
@@ -174,11 +173,11 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
             return result;
         }
 
-        private Dictionary<string, double> MergeResults(List<Dictionary<string, double>> probabilities)
+        private Dictionary<string, double> MergeResults(List<Dictionary<string, double>> suggestions)
         {
             var result = new Dictionary<string, double>();
 
-            foreach (var dictionary in probabilities)
+            foreach (var dictionary in suggestions)
             {
                 foreach (var word in dictionary)
                 {
@@ -189,27 +188,27 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
                 }
             }
 
-            int n = probabilities.Count;
+            int n = suggestions.Count;
             for (int i = 0; i < result.Count; ++i)
                 result[result.Keys.ElementAt(i)] /= n;
 
             return result;
         }
 
-        private ScResponse CreateScResponseForRecorsiveCheck(string text, string[] words)
+        private ScResponse CreateScResponseForRecorsiveCheck(string[] words)
         {
             var isCorrect = _results.Count == 1;
             var results = SotrtResults();
             var suggestions = GetSuggestedWords(results);
             var suggestedText = GetSuggestedText(results);
-            var response = new ScResponse(text, words, isCorrect, suggestedText, suggestions);
+            var response = new ScResponse(words, isCorrect, suggestedText, suggestions);
             return response;
         }
 
-        private ScResponse CreateScResponseForIterationCheck(string text, string[] words, Dictionary<string, double>[] suggestions)
+        private ScResponse CreateScResponseForIterationCheck(string[] words, Dictionary<string, double>[] suggestions)
         {
             var isCorrect = false;
-            var response = new ScResponse(text, words, isCorrect, null, suggestions);
+            var response = new ScResponse(words, isCorrect, null, suggestions);
             return response;
         }
 

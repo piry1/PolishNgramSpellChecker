@@ -6,7 +6,7 @@ namespace PolishNgramSpellChecker
 {
     public class ScResponse : IScResponse
     {
-        public string OriginalText { get; }
+        public string OriginalText { get; set; }
         public string[] Words { get; }
         public bool IsCorrect { get; }
         public int[] IncorrectWordsIndexes { get; }
@@ -15,18 +15,16 @@ namespace PolishNgramSpellChecker
         public double[] WordsScore { get; private set; }
         public Dictionary<string, double>[] WordsSugestions { get; }
 
-        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
+        public ScResponse(IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
         {
-            OriginalText = originalText;
             Words = words.ToArray();
             IsCorrect = isCorrect;
             IncorrectWordsIndexes = incorrectWordsIndexes.ToArray();
             CorrectTextSugestions = correctTextSugestios.ToArray();
         }
 
-        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<double> jointsScore, IEnumerable<string> correctTextSugestios)
+        public ScResponse(IEnumerable<string> words, bool isCorrect, IEnumerable<double> jointsScore, IEnumerable<string> correctTextSugestios)
         {
-            OriginalText = originalText;
             Words = words.ToArray();
             IsCorrect = isCorrect;
             JointsScore = jointsScore.ToArray();
@@ -34,9 +32,8 @@ namespace PolishNgramSpellChecker
             CountWordsScore();
         }
 
-        public ScResponse(string originalText, IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, Dictionary<string, double>[] wordsSugestions)
+        public ScResponse(IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, Dictionary<string, double>[] wordsSugestions)
         {
-            OriginalText = originalText;
             Words = words.ToArray();
             IsCorrect = isCorrect;
             //CorrectTextSugestions = correctTextSugestios.ToArray();

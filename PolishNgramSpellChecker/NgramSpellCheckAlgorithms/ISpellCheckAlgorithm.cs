@@ -4,6 +4,6 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms
 {
     internal interface ISpellCheckAlgorithm
     {
-        IScResponse CheckText(string text, ISpellCheckerParams spellParams);
+        IScResponse CheckText(string[] words, ISpellCheckerParams spellParams);
     }
 }

@@ -3,6 +3,7 @@ using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
 using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
 using PolishNgramSpellChecker.Params;
+using PolishNgramSpellChecker.PreFilters;
 
 namespace PolishNgramSpellChecker
 {
@@ -10,15 +11,17 @@ namespace PolishNgramSpellChecker
     {
         public IScResponse CheckSentence(string text, SpellCheckerParams spellCheckerParams)
         {
+            var words = TextPreprocesor.Process(text);
+
             switch (spellCheckerParams.DetectionAlgorithm)
             {
                 case DetectionAlgorithm.Fuzzy:
                 case DetectionAlgorithm.FuzzyI:
                     var fuzzy = new FuzzySpellCheck();
-                    return fuzzy.CheckText(text, spellCheckerParams);
+                    return fuzzy.CheckText(words, spellCheckerParams);
                 default:
                     var spellChecker = new SimpleNgramDetection();
-                    return spellChecker.CheckText(text, spellCheckerParams);
+                    return spellChecker.CheckText(words, spellCheckerParams);
             }
         }
 

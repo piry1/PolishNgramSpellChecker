@@ -9,15 +9,8 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
 {
     internal class SimpleNgramDetection : ISpellCheckAlgorithm
     {
-
-        public SimpleNgramDetection()
-        {
-          //  Database.Elastic.SetConnection();
-        }
-
-        public IScResponse CheckText(string text, ISpellCheckerParams spellParams)
-        {
-            var words = text.Trim().Split(' ');
+        public IScResponse CheckText(string[] words, ISpellCheckerParams spellParams)
+        {           
             var jointsScore = new double[words.Length - 1];
 
             switch (spellParams.DetectionAlgorithm)
@@ -31,7 +24,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
             }
             
             var isCorrect = IsSentenceCorrect(jointsScore);
-            return new ScResponse(text, words, isCorrect, jointsScore, new List<string>());
+            return new ScResponse(words, isCorrect, jointsScore, new List<string>());
         }
 
         public double[] Check(string[] words, double[] jointsScore, ISpellCheckerParams spellParams)
@@ -100,7 +93,7 @@ namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
                 }
             }
 
-            return new ScResponse(text, words, lastResult, errorIndexes, new List<string>());
+            return new ScResponse(words, lastResult, errorIndexes, new List<string>());
         }
 
         private string ArrayToString(string[] words)
