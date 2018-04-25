@@ -9,20 +9,19 @@ namespace PolishNgramSpellChecker
 {
     public class SpellChecker
     {
+        ScoringModule scoringModule = new ScoringModule();
+        CorrectionModule correctionModule = new CorrectionModule();
+
         public IScResponse CheckSentence(string text, SpellCheckerParams spellCheckerParams)
         {
             var words = PreprocessingModule.Process(text);
+            var score = scoringModule.Score(words, spellCheckerParams);
 
-            switch (spellCheckerParams.DetectionAlgorithm)
-            {
-                case DetectionAlgorithm.Fuzzy:
-                case DetectionAlgorithm.FuzzyI:
-                    var fuzzy = new FuzzySpellCheck();
-                    return fuzzy.CheckText(words, spellCheckerParams);
-                default:
-                    var spellChecker = new SimpleNgramDetection();
-                    return spellChecker.CheckText(words, spellCheckerParams);
-            }
+            for (int i = 0; i < words.Length; ++i)            
+                Console.WriteLine($"{score[i]} -- {words[i]}");
+            
+            var response = correctionModule.CheckText(words, spellCheckerParams);
+            return response;
         }
 
         public SpellChecker()

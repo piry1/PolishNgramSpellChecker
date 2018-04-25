@@ -1,21 +1,24 @@
 ﻿using System;
+using PolishNgramSpellChecker.Params.Interfaces;
 
 namespace PolishNgramSpellChecker.Params
 {
-    public class SpellCheckerParams : ISpellCheckerParams
+    public class SpellCheckerParams : IScoringParams, ICorrectionParams
     {
-        public int N { get; set; } = 2;
         public int MinN { get; set; } = 2;
-        public int MaxN { get; set; } = 5;
-        public bool OrderedMatch { get; set; } = false;
+        public int MaxN { get; set; } = 5;      
         public double MinScoreSpace { get; set; } = 0.35;
+        public double MinPoints { get; set; } = 20;
+        public string Method { get; set; } = "w";     
+        public bool Recursive { get; set; } = false;
+        public bool OrderedMatch { get; set; } = false;
+        public bool ScoreMulti { get; set; } = false;
+
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
-        public DetectionAlgorithm DetectionAlgorithm { get; set; } = DetectionAlgorithm.Simple;
-        public string Method { get; set; }
 
         public override string ToString()
         {
-            return $"N: {N}, MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  detection algorithm: {DetectionAlgorithm}, score space: {MinScoreSpace}, method: {Method}";
+            return $"MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  recursive: {Recursive}, score space: {MinScoreSpace}, method: {Method}";
         }
     }
 }

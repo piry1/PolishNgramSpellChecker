@@ -3,35 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.Params;
+using PolishNgramSpellChecker.Params.Interfaces;
 
 namespace PolishNgramSpellChecker.Modules.Correction
 {
-    public class FuzzySpellCheck
+    public class CorrectionModule
     {
         private readonly Dictionary<string[], double[]> _results = new Dictionary<string[], double[]>();
         private readonly Dictionary<string[], Dictionary<string, double>> _memory =
             new Dictionary<string[], Dictionary<string, double>>();
 
-        public IScResponse CheckText(string[] words, ISpellCheckerParams spellParams)
+        public IScResponse CheckText(string[] words, ICorrectionParams spellParams)
         {
             _results.Clear();
             _memory.Clear();
 
             var score = new double[words.Length];
 
-            switch (spellParams.DetectionAlgorithm)
+            if (spellParams.Recursive)
             {
-                case DetectionAlgorithm.Fuzzy:
-                    Console.WriteLine("FUZZY R " + spellParams.MinScoreSpace);
-                    CheckRecursive(words.ToArray(), score, 0, spellParams);
-                    return CreateScResponseForRecorsiveCheck(words);
-                case DetectionAlgorithm.FuzzyI:
-                    Console.WriteLine("FUZZY I " + spellParams.MinScoreSpace);
-                    var res = Check(words.ToArray(), score, spellParams);
-                    return CreateScResponseForIterationCheck(words, res);
+                CheckRecursive(words.ToArray(), score, 0, spellParams);
+                return CreateScResponseForRecorsiveCheck(words);
             }
-
-            return null;
+            else
+            {
+                var res = Check(words.ToArray(), score, spellParams);
+                return CreateScResponseForIterationCheck(words, res);
+            }
         }
 
         private List<KeyValuePair<string[], double[]>> SotrtResults()
@@ -44,7 +42,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
 
         #region CHECK BY ITERATIONS
 
-        private Dictionary<string, double>[] Check(string[] words, double[] score, ISpellCheckerParams spellParams)
+        private Dictionary<string, double>[] Check(string[] words, double[] score, ICorrectionParams spellParams)
         {
             var results = new Dictionary<string, double>[words.Length];
 
@@ -77,7 +75,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
 
         #endregion
 
-        public void CheckRecursive(string[] words, double[] score, int wordIndex, ISpellCheckerParams spellParams)
+        public void CheckRecursive(string[] words, double[] score, int wordIndex, ICorrectionParams spellParams)
         {
             if (wordIndex == words.Length) // end of recursive algorithm
             {
@@ -108,7 +106,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
         }
 
         // Get suggestions for word at wordIndex
-        private Dictionary<string, double> GetSuggestions(string[] words, int wordIndex, ISpellCheckerParams spellParams)
+        private Dictionary<string, double> GetSuggestions(string[] words, int wordIndex, ICorrectionParams spellParams)
         {
             Dictionary<string, double> results = new Dictionary<string, double>();
 
@@ -123,7 +121,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
         }
 
         // get suggestions for word by n-grams with this word at different positions
-        private List<Dictionary<string, double>> GetSuggestions(List<KeyValuePair<int, string[]>> nGrams, ISpellCheckerParams spellParams)
+        private List<Dictionary<string, double>> GetSuggestions(List<KeyValuePair<int, string[]>> nGrams, ICorrectionParams spellParams)
         {
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)

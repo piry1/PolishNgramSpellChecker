@@ -18,56 +18,17 @@ namespace PolishNgramSpellChecker
             Console.WriteLine("Start");
             Elastic.SetConnection();
             SpellChecker spellChecker = new SpellChecker();
-
-
-            var spellParamsList = new List<SpellCheckerParams>()
-            {
-                new SpellCheckerParams
-                {
-                    OrderedMatch = true,
-                    N = 2,
-                    MinN = 2,
-                    MaxN = 5,
-                    DetectionAlgorithm = DetectionAlgorithm.Simple,
-                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Standard)
-                },
-                new SpellCheckerParams
-                {
-                    OrderedMatch = false,
-                    N = 2,
-                    MinN = 2,
-                    MaxN = 5,
-                    DetectionAlgorithm = DetectionAlgorithm.Simple,
-                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Standard)
-                },
-                new SpellCheckerParams
-                {
-                    OrderedMatch = true,
-                    N = 2,
-                    MinN = 2,
-                    MaxN = 5,
-                    DetectionAlgorithm = DetectionAlgorithm.Multi,
-                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
-                },
-                new SpellCheckerParams
-                {
-                    OrderedMatch = false,
-                    N = 2,
-                    MinN = 2,
-                    MaxN = 5,
-                    DetectionAlgorithm = DetectionAlgorithm.Multi,
-                    ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
-                }
-            };
-            var fuzzy = new FuzzySpellCheck();
+            
+            var fuzzy = new CorrectionModule();
 
         
             SpellCheckerParams param = new SpellCheckerParams();
-            param.DetectionAlgorithm = DetectionAlgorithm.Simple;
+            param.Recursive = false;
+            param.ScoreMulti = false;
             param.MaxN = 3;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
-            param.Method = "w";
+            param.Method = "f";
             param.ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN);
 
             while (true)
@@ -76,19 +37,19 @@ namespace PolishNgramSpellChecker
                 Console.WriteLine("-----------------------------------------");
                 var R = spellChecker.CheckSentence(text, param);
 
-                
-                //foreach (var rr in R.WordsSugestions)
-                //{
-                //    foreach (var wowo in rr)
-                //        Console.WriteLine(wowo.Value + " " + wowo.Key);
 
-                //    Console.WriteLine("\n--------------------------------\n");
-                //}
-
-                for(int i =0; i < R.Words.Count(); ++i)
+                foreach (var rr in R.WordsSugestions)
                 {
-                    Console.WriteLine($"{R.WordsScore[i]} -- {R.Words[i]}");
+                    foreach (var wowo in rr)
+                        Console.WriteLine(wowo.Value + " " + wowo.Key);
+
+                    Console.WriteLine("\n--------------------------------\n");
                 }
+
+                //for(int i =0; i < R.Words.Count(); ++i)
+                //{
+                //    Console.WriteLine($"{R.WordsScore[i]} -- {R.Words[i]}");
+                //}
 
                 //var res = TextPreprocesor.Process(text);
                 //foreach (var r in res)
