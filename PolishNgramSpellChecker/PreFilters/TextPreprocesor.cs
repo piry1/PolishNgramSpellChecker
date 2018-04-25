@@ -14,26 +14,34 @@ namespace PolishNgramSpellChecker.PreFilters
 
             for (int i = 0; i < words.Length; ++i)
             {
-                words[i] = words[i].TrimEnd('.', ',');
-
-                if (char.IsUpper(words[i].First()))
-                {
-                    var tokens = NamesFilter.GetTokens(words[i]);
-                    if (tokens != null)
-                        words[i] = tokens;
-                }
-                else
-                {
-                    int tmp;
-                    bool isNumeric = int.TryParse(words[i], out tmp);
-                    if (isNumeric)
-                        words[i] = "_number";
-                }
-
+                words[i] = words[i].Trim('.', ',');
+                words[i] = CheckNumber(words[i]);
+                words[i] = CheckNames(words[i]);
                 words[i] = words[i].ToLower();
             }
 
             return words;
+        }
+
+        // Check if word is name
+        private static string CheckNames(string word)
+        {
+            if (char.IsUpper(word.First()))
+            {
+                var tokens = NamesFilter.GetTokens(word);
+                if (tokens != null)
+                    return tokens;
+            }
+            return word;
+        }
+
+        // Check if word is number
+        private static string CheckNumber(string word)
+        {
+            bool isNumeric = int.TryParse(word, out int _);
+            if (isNumeric)
+                return "_number";
+            return word;
         }
     }
 }

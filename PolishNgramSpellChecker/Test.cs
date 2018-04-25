@@ -69,7 +69,7 @@ namespace PolishNgramSpellChecker
             param.MaxN = 2;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
-            param.Method = "f";
+            param.Method = "w";
 
             while (true)
             {
