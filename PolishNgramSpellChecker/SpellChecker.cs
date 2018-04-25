@@ -17,16 +17,19 @@ namespace PolishNgramSpellChecker
             var words = PreprocessingModule.Process(text);
             var score = scoringModule.Score(words, spellCheckerParams);
 
-            for (int i = 0; i < words.Length; ++i)            
-                Console.WriteLine($"{score[i]} -- {words[i]}");
-            
-            var response = correctionModule.CheckText(words, spellCheckerParams);
+            var shouldSkip = spellCheckerParams.CanSkip ?
+                scoringModule.ShouldSkip(score, spellCheckerParams.MinPoints)
+                : null;
+
+            //if(shouldSkip != null)
+            //for (int i = 0; i < words.Length; ++i)            
+            //    Console.WriteLine($"{shouldSkip[i]} -- {words[i]}");
+
+            var response = correctionModule.CheckText(words, spellCheckerParams, shouldSkip);
             return response;
         }
 
-        public SpellChecker()
-        {
-            Elastic.SetConnection();
-        }
+        public SpellChecker() => Elastic.SetConnection();
+
     }
 }

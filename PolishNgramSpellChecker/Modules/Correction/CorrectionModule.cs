@@ -13,11 +13,12 @@ namespace PolishNgramSpellChecker.Modules.Correction
         private readonly Dictionary<string[], Dictionary<string, double>> _memory =
             new Dictionary<string[], Dictionary<string, double>>();
 
-        public IScResponse CheckText(string[] words, ICorrectionParams spellParams)
+        public IScResponse CheckText(string[] words, ICorrectionParams spellParams, bool[] sholudSkip = null)
         {
             _results.Clear();
             _memory.Clear();
 
+            bool[] skip = sholudSkip ?? new bool[words.Length];
             var score = new double[words.Length];
 
             if (spellParams.Recursive)
@@ -27,7 +28,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
             }
             else
             {
-                var res = Check(words.ToArray(), score, spellParams);
+                var res = Check(words.ToArray(), score, skip, spellParams);
                 return CreateScResponseForIterationCheck(words, res);
             }
         }
@@ -42,12 +43,19 @@ namespace PolishNgramSpellChecker.Modules.Correction
 
         #region CHECK BY ITERATIONS
 
-        private Dictionary<string, double>[] Check(string[] words, double[] score, ICorrectionParams spellParams)
+        private Dictionary<string, double>[] Check(string[] words, double[] score, bool[] skip, ICorrectionParams spellParams)
         {
             var results = new Dictionary<string, double>[words.Length];
 
             for (int i = 0; i < words.Length; ++i)
             {
+                if (skip[i])
+                {
+                    score[i] = 1;
+                    results[i] = new Dictionary<string, double>();
+                    results[i].Add(words[i], score[i]);
+                    continue;
+                }
                 var suggestions = GetSuggestions(words, i, spellParams);    // get suggestions for this word
                 results[i] = FillResultsI(words[i], suggestions,            // and fill them in results dictionary 
                     spellParams.MinScoreSpace, out score[i]);
@@ -64,10 +72,14 @@ namespace PolishNgramSpellChecker.Modules.Correction
             double minScore = score = suggestions.ContainsKey(word)     // get score for start word
                  ? suggestions[word] : 0;
 
+            int n = 0;
             foreach (var possibleWord in suggestions)                   // add suggestions 
-                if (possibleWord.Value > minScore + minScoreSpace)      // if suggestion score is high enough
+                if ((possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough
+                    && (n <= 3 || minScore != 0))
+                {
                     results.Add(possibleWord.Key, possibleWord.Value);
-
+                    ++n;
+                }
             results.Add(word, minScore);                                // and add start word at the end
 
             return results;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,34 +18,38 @@ namespace PolishNgramSpellChecker
         {
             Console.WriteLine("Start");
             Elastic.SetConnection();
-            SpellChecker spellChecker = new SpellChecker();
-            
+            SpellChecker spellChecker = new SpellChecker();            
             var fuzzy = new CorrectionModule();
-
-        
             SpellCheckerParams param = new SpellCheckerParams();
             param.Recursive = false;
-            param.ScoreMulti = false;
+            param.ScoreMulti = true;
             param.MaxN = 3;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
             param.Method = "f";
+            param.CanSkip = false;
             param.ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN);
 
             while (true)
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-                var R = spellChecker.CheckSentence(text, param);
 
+                Stopwatch stopwatch = Stopwatch.StartNew();
+
+                var R = spellChecker.CheckSentence(text, param);
+                stopwatch.Stop();
+                Console.WriteLine("T: " + stopwatch.ElapsedMilliseconds + "\n");
 
                 foreach (var rr in R.WordsSugestions)
                 {
                     foreach (var wowo in rr)
                         Console.WriteLine(wowo.Value + " " + wowo.Key);
 
-                    Console.WriteLine("\n--------------------------------\n");
+                    Console.WriteLine("--------------------------------\n");
                 }
+
+
 
                 //for(int i =0; i < R.Words.Count(); ++i)
                 //{
@@ -55,7 +60,6 @@ namespace PolishNgramSpellChecker
                 //foreach (var r in res)
                 //    Console.WriteLine(r);
 
-                Console.WriteLine("\n--------------------------------\n");              
             }
 
 

@@ -13,8 +13,9 @@ namespace PolishNgramSpellChecker.Params
         public bool Recursive { get; set; } = false;
         public bool OrderedMatch { get; set; } = false;
         public bool ScoreMulti { get; set; } = false;
-
+        public bool CanSkip { get; set; } = false;
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
+        
 
         public override string ToString()
         {

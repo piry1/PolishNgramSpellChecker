@@ -18,6 +18,16 @@ namespace PolishNgramSpellChecker.Modules.Scoring
             return CountWordsScore(jointsScore);
         }
 
+        public bool[] ShouldSkip(double[] score, double treshold)
+        {
+            bool[] result = new bool[score.Length];
+
+            for (int i = 0; i < score.Length; ++i)
+                result[i] = score[i] >= treshold;
+
+            return result;
+        }
+
         private double[] Check(string[] words, double[] jointsScore, IScoringParams scoringParams, int? N = null)
         {
             int n = N ?? scoringParams.MinN;
