@@ -10,8 +10,14 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing
             var words = text.Trim().Split(' ');
 
             for (int i = 0; i < words.Length; ++i)
+                words[i] = words[i].Trim('.', ',', '-', ':', ';');
+
+            var tmp = words.ToList();
+            tmp.RemoveAll(x => x.Length == 0);
+            words = tmp.ToArray();
+
+            for (int i = 0; i < words.Length; ++i)
             {
-                words[i] = words[i].Trim('.', ',');
                 words[i] = CheckNumber(words[i]);
                 words[i] = CheckNames(words[i]);
                 words[i] = words[i].ToLower();
