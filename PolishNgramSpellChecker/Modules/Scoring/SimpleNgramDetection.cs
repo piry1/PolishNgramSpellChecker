@@ -5,9 +5,9 @@ using System.Linq;
 using Nest;
 using PolishNgramSpellChecker.Params;
 
-namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection
+namespace PolishNgramSpellChecker.Modules.Scoring
 {
-    internal class SimpleNgramDetection : ISpellCheckAlgorithm
+    internal class SimpleNgramDetection
     {
         public IScResponse CheckText(string[] words, ISpellCheckerParams spellParams)
         {           

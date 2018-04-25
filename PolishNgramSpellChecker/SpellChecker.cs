@@ -1,17 +1,17 @@
 ﻿using System;
 using PolishNgramSpellChecker.Database;
-using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
-using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
+using PolishNgramSpellChecker.Modules.Correction;
+using PolishNgramSpellChecker.Modules.Scoring;
 using PolishNgramSpellChecker.Params;
-using PolishNgramSpellChecker.PreFilters;
+using PolishNgramSpellChecker.Modules.Preprocessing;
 
 namespace PolishNgramSpellChecker
 {
-    public class SpellChecker : ISpellChecker
+    public class SpellChecker
     {
         public IScResponse CheckSentence(string text, SpellCheckerParams spellCheckerParams)
         {
-            var words = TextPreprocesor.Process(text);
+            var words = PreprocessingModule.Process(text);
 
             switch (spellCheckerParams.DetectionAlgorithm)
             {

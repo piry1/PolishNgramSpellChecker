@@ -52,19 +52,17 @@
   <ItemGroup>
     <Compile Include="Database\Elastic.cs" />
     <Compile Include="IScResponse.cs" />
-    <Compile Include="ISpellChecker.cs" />
-    <Compile Include="NgramSpellCheckAlgorithms\Correction\FuzzySpellCheck.cs" />
+    <Compile Include="Modules\Preprocessing\PreprocessingModule.cs" />
+    <Compile Include="Modules\Correction\FuzzySpellCheck.cs" />
     <Compile Include="Params\DetectionAlgorithm.cs" />
     <Compile Include="Params\ISpellCheckerParams.cs" />
-    <Compile Include="Model\Ngram.cs" />
-    <Compile Include="NgramSpellCheckAlgorithms\ISpellCheckAlgorithm.cs" />
-    <Compile Include="NgramSpellCheckAlgorithms\Detection\SimpleNgramDetection.cs" />
+    <Compile Include="Database\Ngram.cs" />
+    <Compile Include="Modules\Scoring\SimpleNgramDetection.cs" />
     <Compile Include="Params\ScoreCountFunction.cs" />
     <Compile Include="Params\ScoreCountFunctions.cs" />
     <Compile Include="Params\SpellCheckerParams.cs" />
-    <Compile Include="PreFilters\Name.cs" />
-    <Compile Include="PreFilters\NamesFilter.cs" />
-    <Compile Include="PreFilters\TextPreprocesor.cs" />
+    <Compile Include="Modules\Preprocessing\NamesFilters\Name.cs" />
+    <Compile Include="Modules\Preprocessing\NamesFilters\NamesFilter.cs" />
     <Compile Include="ScResponse.cs" />
     <Compile Include="SpellChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,5 +76,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

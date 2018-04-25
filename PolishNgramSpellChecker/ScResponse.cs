@@ -7,13 +7,21 @@ namespace PolishNgramSpellChecker
     public class ScResponse : IScResponse
     {
         public string OriginalText { get; set; }
-        public string[] Words { get; }
-        public bool IsCorrect { get; }
-        public int[] IncorrectWordsIndexes { get; }
-        public string[] CorrectTextSugestions { get; }
-        public double[] JointsScore { get; }
-        public double[] WordsScore { get; private set; }
-        public Dictionary<string, double>[] WordsSugestions { get; }
+        public string[] Words { get; set; }
+        public bool IsCorrect { get; set; }
+        public int[] IncorrectWordsIndexes { get; set; }
+        public string[] CorrectTextSugestions { get; set; }
+        public double[] JointsScore { get; set; }
+        public double[] WordsScore { get; set; }
+        public Dictionary<string, double>[] WordsSugestions { get; set; }
+
+        public ScResponse(string[] words)
+        {
+            Words = words.ToArray();
+            IncorrectWordsIndexes = new int[words.Length];
+            JointsScore = new double[words.Length -1];
+            WordsScore = new double[words.Length];
+        }
 
         public ScResponse(IEnumerable<string> words, bool isCorrect, IEnumerable<int> incorrectWordsIndexes, IEnumerable<string> correctTextSugestios)
         {

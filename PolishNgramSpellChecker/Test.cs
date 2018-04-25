@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PolishNgramSpellChecker.Database;
-using PolishNgramSpellChecker.NgramSpellCheckAlgorithms;
-using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction;
-using PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Detection;
+using PolishNgramSpellChecker.Modules.Correction;
+using PolishNgramSpellChecker.Modules.Scoring;
 using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
-using PolishNgramSpellChecker.PreFilters;
 
 namespace PolishNgramSpellChecker
 {
@@ -65,11 +63,12 @@ namespace PolishNgramSpellChecker
 
         
             SpellCheckerParams param = new SpellCheckerParams();
-            param.DetectionAlgorithm = DetectionAlgorithm.FuzzyI;
+            param.DetectionAlgorithm = DetectionAlgorithm.Simple;
             param.MaxN = 3;
             param.OrderedMatch = true;
             param.MinScoreSpace = 0;
             param.Method = "w";
+            param.ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN);
 
             while (true)
             {
@@ -77,12 +76,18 @@ namespace PolishNgramSpellChecker
                 Console.WriteLine("-----------------------------------------");
                 var R = spellChecker.CheckSentence(text, param);
 
-                foreach (var rr in R.WordsSugestions)
-                {
-                    foreach (var wowo in rr)
-                        Console.WriteLine(wowo.Value + " " + wowo.Key);
+                
+                //foreach (var rr in R.WordsSugestions)
+                //{
+                //    foreach (var wowo in rr)
+                //        Console.WriteLine(wowo.Value + " " + wowo.Key);
 
-                    Console.WriteLine("\n--------------------------------\n");
+                //    Console.WriteLine("\n--------------------------------\n");
+                //}
+
+                for(int i =0; i < R.Words.Count(); ++i)
+                {
+                    Console.WriteLine($"{R.WordsScore[i]} -- {R.Words[i]}");
                 }
 
                 //var res = TextPreprocesor.Process(text);

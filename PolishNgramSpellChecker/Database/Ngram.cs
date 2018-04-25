@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace PolishNgramSpellChecker.Model
+namespace PolishNgramSpellChecker.Database
 {
     internal class Ngram
     {

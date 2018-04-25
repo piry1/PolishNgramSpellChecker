@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Activities.Expressions;
 using System.Collections.Generic;
 using System.Linq;
-using Nest;
 using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.Params;
-using PolishNgramSpellChecker.PreFilters;
 
-namespace PolishNgramSpellChecker.NgramSpellCheckAlgorithms.Correction
+namespace PolishNgramSpellChecker.Modules.Correction
 {
-    public class FuzzySpellCheck : ISpellCheckAlgorithm
+    public class FuzzySpellCheck
     {
         private readonly Dictionary<string[], double[]> _results = new Dictionary<string[], double[]>();
         private readonly Dictionary<string[], Dictionary<string, double>> _memory =

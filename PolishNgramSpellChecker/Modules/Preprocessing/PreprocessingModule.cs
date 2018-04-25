@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using PolishNgramSpellChecker.Modules.Preprocessing.NamesFilters;
 
-namespace PolishNgramSpellChecker.PreFilters
+namespace PolishNgramSpellChecker.Modules.Preprocessing
 {
-    internal static class TextPreprocesor
+    internal static class PreprocessingModule
     {
         public static string[] Process(string text)
         {
