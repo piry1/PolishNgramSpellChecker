@@ -9,6 +9,7 @@ using PolishNgramSpellChecker.Modules.Correction;
 using PolishNgramSpellChecker.Modules.Scoring;
 using PolishNgramSpellChecker.Params;
 using Elasticsearch = PolishNgramSpellChecker.Database.Elastic;
+using PolishNgramSpellChecker.Modules.Orthography;
 
 namespace PolishNgramSpellChecker
 {
@@ -29,7 +30,7 @@ namespace PolishNgramSpellChecker
             param.Method = "f";
             param.CanSkip = false;
             param.ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN);
-
+            
             while (true)
             {
                 var text = Console.ReadLine();
