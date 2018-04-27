@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PolishNgramSpellChecker.Database;
 using PolishNgramSpellChecker.Params;
 using PolishNgramSpellChecker.Tests.Modules;
 
@@ -30,7 +31,7 @@ namespace PolishNgramSpellChecker.Tests
             var sentences = PreparationModule.LoadTestFile(@"Data/testLalka.txt");
 
             Console.WriteLine(sentences.Count());
-
+          
             int misspels = 0;
             int allWords = 0;
 

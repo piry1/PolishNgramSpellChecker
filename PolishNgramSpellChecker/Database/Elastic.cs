@@ -5,7 +5,7 @@ using Nest;
 
 namespace PolishNgramSpellChecker.Database
 {
-    internal static class Elastic
+    public static class Elastic
     {
         private static ElasticClient _client;
         public static string Url { get; private set; } = "http://localhost:9200";
@@ -35,9 +35,53 @@ namespace PolishNgramSpellChecker.Database
             var result = _client.Search<Ngram>(aa);
             return result.Total > 0;
         }
-        
+
+        #region UNIGRAMS
+
+        public static Dictionary<string, int> GetSimilarWords(string word, string method, Fuzziness fuzziness, int prefixLength = 1)
+        {
+            #region QUERY
+            var query = new Nest.SearchDescriptor<Ngram>()
+                .Index("unigrams")
+                .Size(100)
+                .Sort(a => a
+                    .Ascending(p => p.N))
+                .Query(q => q
+                    .Match(x => x
+                        .Field($"{method}1")
+                        .Query(word)
+                        .Fuzziness(fuzziness)
+                        .PrefixLength(prefixLength)
+                        .FuzzyTranspositions(true)
+                        .MaxExpansions(1000)
+                    )
+                );
+            #endregion
+
+            var result = _client.Search<Ngram>(query);
+
+            var results = new Dictionary<string, int>();
+
+            foreach (var hit in result.Hits)
+            {                
+                string similarWord = hit.Source.w1;
+                similarWord = similarWord.Trim('.');
+
+                if (word == string.Empty || word == similarWord) continue;
+
+                if (!results.ContainsKey(similarWord))
+                    results.Add(similarWord, hit.Source.N);
+                else
+                    results[similarWord] += hit.Source.N;
+            }
+
+            return results;
+        }
+
+        #endregion
+
         #region FUZZY DETECTION AND CORRECTION 
-        
+
         // FUZZY MAIN
         public static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, bool ordered, string method)
         {
