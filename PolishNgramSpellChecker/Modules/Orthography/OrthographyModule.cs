@@ -33,12 +33,11 @@ namespace PolishNgramSpellChecker.Modules.Orthography
                 try
                 {
                     var word = line.Trim().Split(' ')[1];
-                  
                     _polishDictionary.Add(word);
                 }
                 catch
                 {
-                    Console.WriteLine(line);
+                    Console.WriteLine($"Wrong record in: {_dictionaryPath} -- {line}");
                 }
             }
             Console.WriteLine("Done loading");
