@@ -14,12 +14,13 @@ namespace PolishNgramSpellChecker
         public double[] JointsScore { get; set; }
         public double[] WordsScore { get; set; }
         public Dictionary<string, double>[] WordsSugestions { get; set; }
+        public bool[] IsWordCorrect { get; set; }
 
         public ScResponse(string[] words)
         {
             Words = words.ToArray();
             IncorrectWordsIndexes = new int[words.Length];
-            JointsScore = new double[words.Length -1];
+            JointsScore = new double[words.Length - 1];
             WordsScore = new double[words.Length];
         }
 
@@ -40,10 +41,10 @@ namespace PolishNgramSpellChecker
             CountWordsScore();
         }
 
-        public ScResponse(IEnumerable<string> words, bool isCorrect, IEnumerable<string> correctTextSugestios, Dictionary<string, double>[] wordsSugestions)
+        public ScResponse(IEnumerable<string> words, bool[] isCorrect, IEnumerable<string> correctTextSugestios, Dictionary<string, double>[] wordsSugestions)
         {
             Words = words.ToArray();
-            IsCorrect = isCorrect;
+            IsWordCorrect = isCorrect.ToArray();
             //CorrectTextSugestions = correctTextSugestios.ToArray();
             WordsSugestions = wordsSugestions;
             CountWordsScore2();

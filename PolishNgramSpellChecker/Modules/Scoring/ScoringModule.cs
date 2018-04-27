@@ -70,7 +70,10 @@ namespace PolishNgramSpellChecker.Modules.Scoring
         {
             var wordsScore = new double[jointsScore.Length + 1];
             if (wordsScore.Length == 1)
-                return null;
+            {
+                wordsScore[0] = 1;
+                return wordsScore;
+            }
 
             for (int i = 0; i < wordsScore.Length; ++i)
             {

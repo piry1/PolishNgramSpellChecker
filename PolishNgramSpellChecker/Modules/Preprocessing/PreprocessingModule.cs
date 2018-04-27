@@ -23,6 +23,10 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing
                 words[i] = words[i].ToLower();
             }
 
+            tmp = words.ToList();
+            tmp.RemoveAll(x => x.Length == 0);
+            words = tmp.ToArray();
+
             return words;
         }
 

@@ -208,13 +208,17 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var results = SotrtResults();
             var suggestions = GetSuggestedWords(results);
             var suggestedText = GetSuggestedText(results);
-            var response = new ScResponse(words, isCorrect, suggestedText, suggestions);
-            return response;
+            throw new NotImplementedException();
+            //var response = new ScResponse(words, isCorrect, suggestedText, suggestions);
+            //return response;
         }
 
         private ScResponse CreateScResponseForIterationCheck(string[] words, Dictionary<string, double>[] suggestions)
         {
-            var isCorrect = false;
+            bool[] isCorrect = new bool[words.Length];
+            for (int i = 0; i < words.Length; ++i)
+                isCorrect[i] = suggestions[i].Keys.Count() == 1;
+
             var response = new ScResponse(words, isCorrect, null, suggestions);
             return response;
         }

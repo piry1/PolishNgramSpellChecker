@@ -50,7 +50,8 @@ namespace PolishNgramSpellChecker
                     Console.WriteLine("--------------------------------\n");
                 }
 
-
+                foreach (var co in R.IsWordCorrect)
+                    Console.WriteLine(co);
 
                 //for(int i =0; i < R.Words.Count(); ++i)
                 //{

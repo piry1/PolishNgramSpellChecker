@@ -11,5 +11,6 @@ namespace PolishNgramSpellChecker
         double[] JointsScore { get; }
         double[] WordsScore { get; }
         Dictionary<string, double>[] WordsSugestions { get; }
+        bool[] IsWordCorrect { get; set; }
     }
 }

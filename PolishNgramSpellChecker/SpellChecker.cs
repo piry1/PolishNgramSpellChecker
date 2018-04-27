@@ -19,10 +19,10 @@ namespace PolishNgramSpellChecker
             var words = PreprocessingModule.Process(text);
             var ortographyCorrect = orthographyModule.IsCorrect(words);
 
-            foreach (var oc in ortographyCorrect)
-                Console.WriteLine(oc);
+            //foreach (var oc in ortographyCorrect)
+             //   Console.WriteLine(oc);
 
-            Console.WriteLine("------------------------------");
+            //Console.WriteLine("------------------------------");
             var score = scoringModule.Score(words, spellCheckerParams);
 
             var shouldSkip = spellCheckerParams.CanSkip ?
