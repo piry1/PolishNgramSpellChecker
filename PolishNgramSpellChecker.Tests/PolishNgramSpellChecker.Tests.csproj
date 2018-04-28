@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Sentence.cs" />
+    <Compile Include="Modules\MisspellsGenerationModule.cs" />
     <Compile Include="Modules\PreparationModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
