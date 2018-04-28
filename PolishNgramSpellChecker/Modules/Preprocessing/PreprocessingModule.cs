@@ -36,7 +36,7 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing
             if (char.IsUpper(word.First()))
             {
                 var tokens = NamesFilter.GetTokens(word);
-                if (tokens != null)
+                if (tokens != null && tokens != "")
                     return tokens;
             }
             return word;

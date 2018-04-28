@@ -8,11 +8,11 @@ namespace PolishNgramSpellChecker.Tests.Model
 {
     internal class Sentence
     {
-        public string[] OriginalWords { get; private set; }
-        public string[] Words { get; private set; }
-        public bool[] IsWordCorrect { get; private set; }
-        public List<string>[] Suggestions { get; private set; }
-        public int[] CorrectSuggestionPossition { get; private set; }
+        public string[] OriginalWords { get; set; }
+        public string[] Words { get; set; }
+        public bool[] IsWordCorrect { get; set; }
+        public List<string>[] Suggestions { get; set; }
+        public int[] CorrectSuggestionPossition { get; set; }
 
         public Sentence(string[] words)
         {

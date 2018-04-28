@@ -10,20 +10,21 @@ namespace PolishNgramSpellChecker.Tests.Modules
 {
     internal static class PreparationModule
     {
-        public static List<string> LoadTestFile(string path)
+        public static List<string[]> LoadTestFile(string path)
         {
             Console.WriteLine("Start loading: " + path);
 
-            List<string> result = new List<string>();
+            List<string[]> result = new List<string[]>();
             var text = File.ReadAllText(path);
             var sentences = text.Split(new char[] { '.', ':', ';', '"', '”', '“', '(', ')', '-' });
 
             for (int i = 0; i < sentences.Length; ++i)
             {
-                sentences[i] = sentences[i].Trim();
+                sentences[i] = sentences[i].Replace(',', ' ').Trim();
                 if (sentences[i].Length == 0) continue;
-                var words = sentences[i].Split();
-                result.Add(string.Join(" ", words));
+                var words = sentences[i].Split().ToList();
+                words.RemoveAll(x => x.Length == 0);
+                result.Add(words.ToArray());
             }
 
             Console.WriteLine("Done loading");

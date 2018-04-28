@@ -81,7 +81,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
             return $"{TotalPopulation};{ConditionPositive};{ConditionNegative};{Prevalence};{ACC}\n" +
                  $"{PredictedPositive};{TP};{FP};{PPV};{FDR}\n" +
                  $"{PredictedNegative};{FN};{TN};{FOR};{NPV}\n" +
-                 $";{TPR};{FPR};{LRplus};{DOR}" +
+                 $";{TPR};{FPR};{LRplus};{DOR}\n" +
                  $";{FNR};{TNR};{LRminus};{F1score}";
         }
     }
