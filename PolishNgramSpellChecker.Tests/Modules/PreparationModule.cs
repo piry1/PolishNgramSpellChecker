@@ -12,7 +12,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
     {
         public static List<string[]> LoadTestFile(string path)
         {
-            Console.WriteLine("Start loading: " + path);
+         //   Console.WriteLine("Start loading: " + path);
 
             List<string[]> result = new List<string[]>();
             var text = File.ReadAllText(path);
@@ -27,7 +27,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
                 result.Add(words.ToArray());
             }
 
-            Console.WriteLine("Done loading");
+          //  Console.WriteLine("Done loading");
 
             return result;
         }

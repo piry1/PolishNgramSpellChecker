@@ -40,7 +40,7 @@ namespace PolishNgramSpellChecker.Modules.Orthography
                     Console.WriteLine($"Wrong record in: {_dictionaryPath} -- {line}");
                 }
             }
-            Console.WriteLine("Done loading");
+            //Console.WriteLine("Done loading");
         }
     }
 }
