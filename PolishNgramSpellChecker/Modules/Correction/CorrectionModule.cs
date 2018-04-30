@@ -75,10 +75,10 @@ namespace PolishNgramSpellChecker.Modules.Correction
             int n = 0;
             foreach (var possibleWord in suggestions)                   // add suggestions 
                 if ((possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough
-                    && (n <= 3 || minScore != 0))
+                    /*&& (n <= 3 || minScore != 0)*/)
                 {
                     results.Add(possibleWord.Key, possibleWord.Value);
-                    ++n;
+                  //  ++n;
                 }
             results.Add(word, minScore);                                // and add start word at the end
 
@@ -109,11 +109,11 @@ namespace PolishNgramSpellChecker.Modules.Correction
             foreach (var possibleWord in possibleWordReplacements)
             {
                 if (!(possibleWord.Value > minScore + spellParams.MinScoreSpace)) continue;
-                if (n >= 2 && minScore == 0) continue;
+              //  if (n >= 2 && minScore == 0) continue;
                 score[wordIndex] = possibleWord.Value;
                 words[wordIndex] = possibleWord.Key;
                 CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1, spellParams); // go recursive 
-                ++n;
+              //  ++n;
             }
         }
 

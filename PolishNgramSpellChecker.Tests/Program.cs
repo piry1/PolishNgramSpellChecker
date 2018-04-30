@@ -22,7 +22,7 @@ namespace PolishNgramSpellChecker.Tests
             {
                 Recursive = false,
                 ScoreMulti = false,
-                MaxN = 3,
+                MaxN = 2,
                 OrderedMatch = true,
                 MinScoreSpace = 0.0,
                 Method = "w",
@@ -30,6 +30,10 @@ namespace PolishNgramSpellChecker.Tests
                 CanSkip = false,
                 ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
             };
+
+            string paramName = nameof(SpellCheckerParams.MinScoreSpace);
+            Console.WriteLine(paramName);
+            object[] paramVector = new object[] { 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4};
 
             var textList = new List<Sentence[]>();
             if (File.Exists(@"Data/testLalkaSentences.json"))
@@ -44,7 +48,7 @@ namespace PolishNgramSpellChecker.Tests
             Console.WriteLine("Start Testing");
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            TestModule.RunTests(textList, param);
+            TestModule.RunTests(textList, param, paramVector, paramName);
             watch.Stop();
             Console.WriteLine($"{watch.ElapsedMilliseconds / 1000}s - time");
 
