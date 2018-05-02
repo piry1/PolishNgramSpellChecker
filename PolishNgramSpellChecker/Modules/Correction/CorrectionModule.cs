@@ -10,13 +10,13 @@ namespace PolishNgramSpellChecker.Modules.Correction
     public class CorrectionModule
     {
         private readonly Dictionary<string[], double[]> _results = new Dictionary<string[], double[]>();
-        private readonly Dictionary<string[], Dictionary<string, double>> _memory =
-            new Dictionary<string[], Dictionary<string, double>>();
+        private readonly Dictionary<string, Dictionary<string, double>> _memory =
+            new Dictionary<string, Dictionary<string, double>>();
 
         public IScResponse CheckText(string[] words, ICorrectionParams spellParams, bool[] sholudSkip = null)
         {
             _results.Clear();
-            _memory.Clear();
+         //   _memory.Clear();
 
             bool[] skip = sholudSkip ?? new bool[words.Length];
             var score = new double[words.Length];
@@ -138,14 +138,15 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)
             {
-                if (!_memory.ContainsKey(nGram.Value))
+                string memKey = $"{string.Join(" ",nGram.Value)} {nGram.Key.ToString()} {spellParams.OrderedMatch} {spellParams.Method}";
+                if (!_memory.ContainsKey(memKey))
                 {
                     var suggestions = Elastic.NgramFuzzyMatch(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
                     suggestionsList.Add(suggestions);
-                    _memory.Add(nGram.Value, suggestions);
+                    _memory.Add(memKey, suggestions);
                 }
                 else
-                    suggestionsList.Add(_memory[nGram.Value]);
+                    suggestionsList.Add(_memory[memKey]);
             }
             return suggestionsList;
         }

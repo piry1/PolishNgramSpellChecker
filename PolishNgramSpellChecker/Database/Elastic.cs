@@ -118,7 +118,7 @@ namespace PolishNgramSpellChecker.Database
 
             #region QUERY
             var query = new Nest.SearchDescriptor<Ngram>()
-                .Index($"sn{n}grams")
+                .Index($"s{n}grams")
                 .Size(100)
                 .Sort(a => a
                     .Descending(p => p.N))
