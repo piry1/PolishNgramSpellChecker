@@ -31,12 +31,12 @@ namespace PolishNgramSpellChecker.HttpApi.Server.Controllers
             {
                 return new SpellCheckerParams
                 {
-                    N = this.N,
+                    //N = this.N,
                     MinN = this.MinN,
                     MaxN = this.MaxN,
                     OrderedMatch = this.OrderedMatch,
                     ScoreCountFunc = Params.ScoreCountFunction.GetFunc(this.ScoreCountFunction),
-                    DetectionAlgorithm = this.DetectionAlgorithm,
+                    //DetectionAlgorithm = this.DetectionAlgorithm,
                     MinScoreSpace = this.MinScoreSpace
                 };
 

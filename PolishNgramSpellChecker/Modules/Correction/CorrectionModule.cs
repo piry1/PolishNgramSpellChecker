@@ -10,13 +10,10 @@ namespace PolishNgramSpellChecker.Modules.Correction
     public class CorrectionModule
     {
         private readonly Dictionary<string[], double[]> _results = new Dictionary<string[], double[]>();
-        private readonly Dictionary<string, Dictionary<string, double>> _memory =
-            new Dictionary<string, Dictionary<string, double>>();
 
         public IScResponse CheckText(string[] words, ICorrectionParams spellParams, bool[] sholudSkip = null)
         {
             _results.Clear();
-         //   _memory.Clear();
 
             bool[] skip = sholudSkip ?? new bool[words.Length];
             var score = new double[words.Length];
@@ -75,10 +72,10 @@ namespace PolishNgramSpellChecker.Modules.Correction
             int n = 0;
             foreach (var possibleWord in suggestions)                   // add suggestions 
                 if ((possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough
-                    /*&& (n <= 3 || minScore != 0)*/)
+                                                                        /*&& (n <= 3 || minScore != 0)*/)
                 {
                     results.Add(possibleWord.Key, possibleWord.Value);
-                  //  ++n;
+                    //  ++n;
                 }
             results.Add(word, minScore);                                // and add start word at the end
 
@@ -109,11 +106,11 @@ namespace PolishNgramSpellChecker.Modules.Correction
             foreach (var possibleWord in possibleWordReplacements)
             {
                 if (!(possibleWord.Value > minScore + spellParams.MinScoreSpace)) continue;
-              //  if (n >= 2 && minScore == 0) continue;
+                //  if (n >= 2 && minScore == 0) continue;
                 score[wordIndex] = possibleWord.Value;
                 words[wordIndex] = possibleWord.Key;
                 CheckRecursive(words.ToArray(), score.ToArray(), wordIndex + 1, spellParams); // go recursive 
-              //  ++n;
+                                                                                              //  ++n;
             }
         }
 
@@ -138,15 +135,8 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)
             {
-                string memKey = $"{string.Join(" ",nGram.Value)} {nGram.Key.ToString()} {spellParams.OrderedMatch} {spellParams.Method}";
-                if (!_memory.ContainsKey(memKey))
-                {
-                    var suggestions = Elastic.NgramFuzzyMatch(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
-                    suggestionsList.Add(suggestions);
-                    _memory.Add(memKey, suggestions);
-                }
-                else
-                    suggestionsList.Add(_memory[memKey]);
+                var suggestions = Elastic.NgramFuzzyMatch(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
+                suggestionsList.Add(suggestions);
             }
             return suggestionsList;
         }

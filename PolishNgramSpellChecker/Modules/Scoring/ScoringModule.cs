@@ -7,7 +7,6 @@ namespace PolishNgramSpellChecker.Modules.Scoring
 {
     internal class ScoringModule
     {
-        private Dictionary<string, double> _memory = new Dictionary<string, double>();
 
         public double[] Score(string[] words, IScoringParams scoringParams)
         {
@@ -40,15 +39,7 @@ namespace PolishNgramSpellChecker.Modules.Scoring
                     sentence += words[j] + " ";
 
                 sentence = sentence.TrimEnd();
-                string memKey = sentence + scoringParams.OrderedMatch.ToString();
-                double nCount = 0;
-                if (!_memory.ContainsKey(memKey))
-                {
-                    nCount = Database.Elastic.NgramNvalue(sentence, scoringParams.OrderedMatch);
-                    _memory.Add(memKey, nCount);
-                }
-                else
-                    nCount = _memory[memKey];
+                var nCount = Database.Elastic.NgramNvalue(sentence, scoringParams.OrderedMatch);
                 var score = scoringParams.ScoreCountFunc(nCount, n);
                 SetJointsScore(ref jointsScore, i, n - 1, score);
             }

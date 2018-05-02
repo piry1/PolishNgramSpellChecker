@@ -16,7 +16,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
 
             List<string[]> result = new List<string[]>();
             var text = File.ReadAllText(path);
-            var sentences = text.Split(new char[] { '.', ':', ';', '"', '”', '“', '(', ')', '-' });
+            var sentences = text.Split(new char[] { '.', ':', ';', '"', '”', '“', '„', '(', ')', '-' });
 
             for (int i = 0; i < sentences.Length; ++i)
             {
