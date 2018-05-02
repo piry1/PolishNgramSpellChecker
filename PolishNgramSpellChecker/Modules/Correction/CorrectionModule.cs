@@ -135,7 +135,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)
             {
-                var suggestions = Elastic.NgramFuzzyMatch(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
+                var suggestions = Elastic.GetSimilarWords(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
                 suggestionsList.Add(suggestions);
             }
             return suggestionsList;

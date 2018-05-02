@@ -30,10 +30,10 @@ namespace PolishNgramSpellChecker.Database
         public static Dictionary<string, int> GetSimilarWords(string word, string method, Fuzziness fuzziness, int prefixLength = 1)
         {
             string key = $"GetSimilarWords+{word}+{method}+{fuzziness}+{prefixLength}";
-            return _cache.GetOrAdd(key, () => GetSimilarWords2(word, method, fuzziness, prefixLength));
+            return _cache.GetOrAdd(key, () => SimilarWords(word, method, fuzziness, prefixLength));
         }
 
-        private static Dictionary<string, int> GetSimilarWords2(string word, string method, Fuzziness fuzziness, int prefixLength)
+        private static Dictionary<string, int> SimilarWords(string word, string method, Fuzziness fuzziness, int prefixLength)
         {
             #region QUERY
             var query = new Nest.SearchDescriptor<Ngram>()
@@ -78,30 +78,18 @@ namespace PolishNgramSpellChecker.Database
         #region FUZZY DETECTION AND CORRECTION 
 
         // FUZZY MAIN
-        public static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, bool ordered, string method)
+        public static Dictionary<string, double> GetSimilarWords(int idx, string[] words, bool ordered, string method)
         {
             string key = $"NgramFuzzyMatch+{idx}+{string.Join(" ", words)}+{ordered}+{method}";
-            return _cache.GetOrAdd(key, () => NgramFuzzyMatch2(idx, words, ordered, method));
+
+            var result = _cache.GetOrAdd(key, () => ordered ?
+                NgramFuzzyMatch(idx, words, method)
+                : NgramFuzzyMatch_no(idx, words, method));
+
+            return result;
         }
 
-        private static Dictionary<string, double> NgramFuzzyMatch2(int idx, string[] words, bool ordered, string method)
-        {
-
-            if (!ordered)
-            {
-                var word = words[idx];
-                List<string> sWords = new List<string>();
-                for (int i = 0; i < words.Length; ++i)
-                    if (i != idx)
-                        sWords.Add(words[i]);
-
-                return NgramNoOrderedFuzzyMatch(word, sWords.ToArray(), method);
-            }
-            else
-                return NgramOrderedFuzzyMatch(idx, words, method);
-        }
-
-        private static Dictionary<string, double> NgramOrderedFuzzyMatch(int idx, string[] words, string method)
+        private static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, string method)
         {
             var n = words.Length;
             string searchedWord = words[idx];
@@ -109,13 +97,15 @@ namespace PolishNgramSpellChecker.Database
 
             for (int i = 0; i < 5; ++i)
             {
-                if (i < n)
-                {
-                    if (i != idx)
-                        surWords.Add(i + 1, words[i]);
-                }
-                else
-                    surWords.Add(i + 1, null);
+                if (i != idx)
+                    surWords.Add(i + 1, i < n ? words[i] : null);
+                //if (i < n)
+                //{
+                //    if (i != idx)
+                //        surWords.Add(i + 1, words[i]);
+                //}
+                //else
+                //    surWords.Add(i + 1, null);
             }
 
             #region QUERY
@@ -169,10 +159,13 @@ namespace PolishNgramSpellChecker.Database
             return CountPercentage(idx, result);
         }
 
-        private static Dictionary<string, double> NgramNoOrderedFuzzyMatch(string word, string[] words, string method)
+        private static Dictionary<string, double> NgramFuzzyMatch_no(int idx, string[] words, string method)
         {
-            var n = words.Length + 1;
-            var stringWords = string.Join(" ", words);
+            var word = words[idx];
+            List<string> sWords = words.ToList();
+            sWords.RemoveAt(idx);
+            var n = words.Length;
+            var stringWords = string.Join(" ", sWords);
             #region QUERY
             var query = new Nest.SearchDescriptor<Ngram>()
                 .Index($"{_noOrderedSearchIndexPrefix}{n}grams")
@@ -201,7 +194,7 @@ namespace PolishNgramSpellChecker.Database
                 );
             #endregion   
             var result = _client.Search<Ngram>(query);
-            return CountPercentage(result, words);
+            return CountPercentage_no(result, words);
         }
 
         private static Dictionary<string, double> CountPercentage(int idx, ISearchResponse<Ngram> searchResponse)
@@ -227,7 +220,7 @@ namespace PolishNgramSpellChecker.Database
             return results;
         }
 
-        private static Dictionary<string, double> CountPercentage(ISearchResponse<Ngram> searchResponse, string[] words)
+        private static Dictionary<string, double> CountPercentage_no(ISearchResponse<Ngram> searchResponse, string[] words)
         {
             var results = new Dictionary<string, double>();
             var n = searchResponse.Hits.Sum(hit => hit.Source.N);
@@ -263,58 +256,59 @@ namespace PolishNgramSpellChecker.Database
         #endregion
 
         #region DETECTION MAIN
-        public static double NgramNvalue(string text, bool ordered = true)
+
+        public static double GetNgramNValue(string text, bool ordered = true)
         {
             string key = $"NgramValue:{text}+{ordered}";
-            return _cache.GetOrAdd(key, () => ordered ? NgramValue(text) : NgramNoOrderValue(text));
+            return _cache.GetOrAdd(key, () => NgramNValue(text, ordered));
         }
 
-        private static double NgramValue(string words)
+        private static double NgramNValue(string words, bool ordered)
         {
-            double n = words.Split(' ').Length;
-            // query
-            var aa = new SearchDescriptor<Ngram>()
-                .Index($"{_orderedSearchIndexPrefix}{n}grams")
-                .Size(1)
-                .Sort(a => a
-                    .Descending(p => p.N))
-                .Query(q => q
-                    .MatchPhrase(c => c
-                        .Field(p => p.s)
-                        .Query(words))
-                );
-            // searching
-            var result = _client.Search<Ngram>(aa);
-            return CountScore(n, result);
+            int n = words.Split(' ').Length;
+
+            var query = ordered ?
+                NgramValueQuery(n, words)
+                : NgramValue_no_Query(n, words);
+
+            var result = _client.Search<Ngram>(query);
+            return result.Total == 0 ? 0 : result.Hits.First().Source.N;
         }
 
-        private static double NgramNoOrderValue(string words)
+        #region Queries
+
+        private static SearchDescriptor<Ngram> NgramValueQuery(int n, string words)
         {
-            double n = words.Trim().Split(' ').Length;
-            // query
-            var aa = new SearchDescriptor<Ngram>()
-                .Index($"{_noOrderedSearchIndexPrefix}{n}grams")
-                .Size(1)
-                .Sort(a => a
-                    .Descending(p => p.N))
-                .Query(q => q
-                    .Match(c => c
-                        .Field(p => p.w)
-                        .Operator(Operator.And)
-                        .Query(words))
-                );
-
-            // searching
-            var result = _client.Search<Ngram>(aa);
-            return CountScore(n, result);
+            var query = new SearchDescriptor<Ngram>()
+              .Index($"{_orderedSearchIndexPrefix}{n}grams")
+              .Size(1)
+              .Sort(a => a
+                  .Descending(p => p.N))
+              .Query(q => q
+                  .MatchPhrase(c => c
+                      .Field(p => p.s)
+                      .Query(words))
+              );
+            return query;
         }
 
-        private static double CountScore(double n, ISearchResponse<Ngram> result)
+        private static SearchDescriptor<Ngram> NgramValue_no_Query(int n, string words)
         {
-            if (result.Total == 0)
-                return 0;
-            return result.Hits.First().Source.N;
+            var query = new SearchDescriptor<Ngram>()
+               .Index($"{_noOrderedSearchIndexPrefix}{n}grams")
+               .Size(1)
+               .Sort(a => a
+                   .Descending(p => p.N))
+               .Query(q => q
+                   .Match(c => c
+                       .Field(p => p.w)
+                       .Operator(Operator.And)
+                       .Query(words))
+               );
+            return query;
         }
+
+        #endregion
 
         #endregion
     }
