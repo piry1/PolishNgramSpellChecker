@@ -22,7 +22,8 @@ namespace PolishNgramSpellChecker.Tests
             {
                 Recursive = false,
                 ScoreMulti = false,
-                MaxN = 2,
+                MaxN = 3,
+                MinN = 3,
                 OrderedMatch = true,
                 MinScoreSpace = 0.0,
                 Method = "w",

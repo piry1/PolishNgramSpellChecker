@@ -11,8 +11,8 @@ namespace PolishNgramSpellChecker.Database
         private static ElasticClient _client;
         private static IAppCache _cache = new CachingService();
 
-        private static string _orderedSearchIndexPrefix = "s";
-        private static string _noOrderedSearchIndexPrefix = "mn";
+        private static string _orderedSearchIndexPrefix = "ss";
+        private static string _noOrderedSearchIndexPrefix = "mm";
 
         public static string Url { get; private set; } = "http://localhost:9200";
 
