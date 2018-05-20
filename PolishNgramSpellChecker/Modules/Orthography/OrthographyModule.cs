@@ -7,7 +7,7 @@ using System.IO;
 
 namespace PolishNgramSpellChecker.Modules.Orthography
 {
-    internal class OrthographyModule
+    public class OrthographyModule
     {
         private HashSet<string> _polishDictionary = new HashSet<string>();
         private string _dictionaryPath = @"data/unigrams.txt";
@@ -19,7 +19,7 @@ namespace PolishNgramSpellChecker.Modules.Orthography
             bool[] result = new bool[words.Length];
 
             for (int i = 0; i < words.Length; ++i)
-                result[i] = (_polishDictionary.Contains(words[i]) || words[i].First() == '_');
+                result[i] = (_polishDictionary.Contains(words[i].ToLower()) || words[i].First() == '_');
 
             return result;
         }

@@ -65,7 +65,6 @@
     <Compile Include="Params\DetectionAlgorithm.cs" />
     <Compile Include="Params\Interfaces\ICorrectionParams.cs" />
     <Compile Include="Params\Interfaces\IScoringParams.cs" />
-    <Compile Include="Params\ISpellCheckerParams.cs" />
     <Compile Include="Database\Ngram.cs" />
     <Compile Include="Modules\Scoring\ScoringModule.cs" />
     <Compile Include="Params\ScoreCountFunction.cs" />

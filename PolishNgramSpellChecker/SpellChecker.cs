@@ -29,9 +29,9 @@ namespace PolishNgramSpellChecker
                 scoringModule.ShouldSkip(score, spellCheckerParams.MinPoints)
                 : null;
 
-            //if(shouldSkip != null)
-            //for (int i = 0; i < words.Length; ++i)            
-            //    Console.WriteLine($"{shouldSkip[i]} -- {words[i]}");
+            //if (shouldSkip != null)
+            //    for (int i = 0; i < words.Length; ++i)
+            //        Console.WriteLine($"{shouldSkip[i]} -- {words[i]}");
 
             var response = correctionModule.CheckText(words, spellCheckerParams, shouldSkip);
             return response;

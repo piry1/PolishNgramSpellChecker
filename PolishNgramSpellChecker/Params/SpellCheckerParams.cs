@@ -9,23 +9,23 @@ namespace PolishNgramSpellChecker.Params
         public int MaxN { get; set; } = 5;
         public double MinScoreSpace { get; set; } = 0.35;
         public double MinPoints { get; set; } = 20;
-        public string Method { get; set; } = "w";
+        public string CorrectionMethod { get; set; } = "w";
         public bool Recursive { get; set; } = false;
         public bool OrderedMatch { get; set; } = false;
         public bool ScoreMulti { get; set; } = false;
         public bool CanSkip { get; set; } = false;
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
-
+        public string DetectionMethod { get; set; } = "w";
 
         public override string ToString()
         {
-            return $"MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  recursive: {Recursive}, score space: {MinScoreSpace}, method: {Method}";
+            return $"MinN: {MinN}, MaxN: {MaxN}, ordered: {OrderedMatch},  recursive: {Recursive}, score space: {MinScoreSpace}, method: {CorrectionMethod}";
         }
 
         public string ToCsvString()
         {
             return $"MinN;MaxN;MinScoreSpace;MinPoints;Method;Recursive;OrderedMatch;ScoreMulti;CanSkip\n" +
-                $"{MinN};{MaxN};{MinScoreSpace};{MinPoints};{Method};{Recursive};{OrderedMatch};{ScoreMulti};{CanSkip}";
+                $"{MinN};{MaxN};{MinScoreSpace};{MinPoints};{CorrectionMethod};{Recursive};{OrderedMatch};{ScoreMulti};{CanSkip}";
         }
 
         public SpellCheckerParams GetCopy()
@@ -36,7 +36,7 @@ namespace PolishNgramSpellChecker.Params
                 ScoreMulti = ScoreMulti,
                 OrderedMatch = OrderedMatch,
                 Recursive = Recursive,
-                Method = Method,
+                CorrectionMethod = CorrectionMethod,
                 MinPoints = MinPoints,
                 MaxN = MaxN,
                 MinN = MinN,

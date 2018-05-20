@@ -13,7 +13,7 @@ namespace PolishNgramSpellChecker.Params.Interfaces
         bool OrderedMatch { get; set; }
         double MinScoreSpace { get; set; }
         bool Recursive { get; set; }
-        string Method { get; set; }
+        string CorrectionMethod { get; set; }
         bool CanSkip { get; set; }
     }
 }

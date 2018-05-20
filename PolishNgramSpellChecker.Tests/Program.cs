@@ -22,11 +22,11 @@ namespace PolishNgramSpellChecker.Tests
             {
                 Recursive = false,
                 ScoreMulti = false,
-                MaxN = 3,
-                MinN = 3,
+                MaxN = 2,
+                MinN = 2,
                 OrderedMatch = true,
                 MinScoreSpace = 0.0,
-                Method = "w",
+                CorrectionMethod = "w",
                 MinPoints = 0.1,
                 CanSkip = true,
                 ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
@@ -40,13 +40,13 @@ namespace PolishNgramSpellChecker.Tests
                 paramVector[i] = 0.01 * i;
             
             var textList = new List<Sentence[]>();
-            if (File.Exists(@"Data/testLalkaSentences.json"))
-                textList = MisspellsGenerationModule.DeserializeText(@"Data/testLalkaSentences.json");
+            if (File.Exists(@"Data/testScimSentences.json"))
+                textList = MisspellsGenerationModule.DeserializeText(@"Data/testScimSentences.json");
             else
-            {
-                var sentences = PreparationModule.LoadTestFile(@"Data/testLalka.txt");
+            {              
+                var sentences = PreparationModule.LoadTestFile(@"Data/testScim.txt", spellChecker);
                 textList = MisspellsGenerationModule.GenerateMisspelledTexts(sentences, 2, "w", Nest.Fuzziness.Auto);
-                MisspellsGenerationModule.SerializeTexts(textList, @"Data/testLalkaSentences.json");
+                MisspellsGenerationModule.SerializeTexts(textList, @"Data/testScimSentences.json");
             }
 
             Console.WriteLine("Start Testing");

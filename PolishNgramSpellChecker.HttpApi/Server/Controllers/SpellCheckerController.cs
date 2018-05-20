@@ -18,25 +18,21 @@ namespace PolishNgramSpellChecker.HttpApi.Server.Controllers
         }
 
         public class SpellCheckerRequest
-        {
-            public int N { get; set; } = 2;
+        {        
             public int MinN { get; set; } = 2;
-            public int MaxN { get; set; } = 5;
+            public int MaxN { get; set; } = 3;
             public bool OrderedMatch { get; set; } = true;
-            public double MinScoreSpace { get; set; } = 0.35;
-            public ScoreCountFunctions ScoreCountFunction { get; set; } = ScoreCountFunctions.Standard;
-            public DetectionAlgorithm DetectionAlgorithm { get; set; } = DetectionAlgorithm.Simple;
+            public double MinScoreSpace { get; set; } = 0.3;
+            public ScoreCountFunctions ScoreCountFunction { get; set; } = ScoreCountFunctions.Standard;            
             public string Text { get; set; }
             public SpellCheckerParams GetSpellCheckerParams()
             {
                 return new SpellCheckerParams
-                {
-                    //N = this.N,
+                {               
                     MinN = this.MinN,
                     MaxN = this.MaxN,
                     OrderedMatch = this.OrderedMatch,
                     ScoreCountFunc = Params.ScoreCountFunction.GetFunc(this.ScoreCountFunction),
-                    //DetectionAlgorithm = this.DetectionAlgorithm,
                     MinScoreSpace = this.MinScoreSpace
                 };
 

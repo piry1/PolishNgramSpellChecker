@@ -69,7 +69,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
             double minScore = score = suggestions.ContainsKey(word)     // get score for start word
                  ? suggestions[word] : 0;
 
-            int n = 0;
+           // int n = 0;
             foreach (var possibleWord in suggestions)                   // add suggestions 
                 if ((possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough
                                                                         /*&& (n <= 3 || minScore != 0)*/)
@@ -95,7 +95,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
 
             var possibleWordReplacements = GetSuggestions(words, wordIndex, spellParams);
 
-            int n = 0;
+           // int n = 0;
             double minScore = possibleWordReplacements.ContainsKey(words[wordIndex])
                 ? possibleWordReplacements[words[wordIndex]]
                 : 0;
@@ -135,7 +135,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)
             {
-                var suggestions = Elastic.GetSimilarWords(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.Method);
+                var suggestions = Elastic.GetSimilarWords(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.CorrectionMethod);
                 suggestionsList.Add(suggestions);
             }
             return suggestionsList;

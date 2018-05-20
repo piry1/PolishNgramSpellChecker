@@ -9,6 +9,7 @@ namespace PolishNgramSpellChecker.Params.Interfaces
         bool OrderedMatch { get; set; }
         double MinPoints { get; set; }
         bool ScoreMulti { get; set; }
+        string DetectionMethod { get; set; }
         Func<double, double, double> ScoreCountFunc { get; set; }
     }
 }

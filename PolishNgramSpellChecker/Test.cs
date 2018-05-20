@@ -19,23 +19,25 @@ namespace PolishNgramSpellChecker
         {
             Console.WriteLine("Start");
             Elastic.SetConnection();
-            SpellChecker spellChecker = new SpellChecker();            
+            SpellChecker spellChecker = new SpellChecker();
             var fuzzy = new CorrectionModule();
-            SpellCheckerParams param = new SpellCheckerParams();
-            param.Recursive = false;
-            param.ScoreMulti = true;
-            param.MaxN = 3;
-            param.OrderedMatch = true;
-            param.MinScoreSpace = 0;
-            param.Method = "f";
-            param.CanSkip = false;
-            param.ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN);
-            
+            SpellCheckerParams param = new SpellCheckerParams
+            {
+                ScoreMulti = false,
+                MaxN = 2,
+                OrderedMatch = true,
+                MinScoreSpace = 0,
+                CorrectionMethod = "d",
+                DetectionMethod = "w",
+                CanSkip = true,
+                MinPoints = 1,
+                ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
+            };
             while (true)
             {
                 var text = Console.ReadLine();
                 Console.WriteLine("-----------------------------------------");
-
+                
                 Stopwatch stopwatch = Stopwatch.StartNew();
 
                 var R = spellChecker.CheckSentence(text, param);
@@ -50,8 +52,8 @@ namespace PolishNgramSpellChecker
                     Console.WriteLine("--------------------------------\n");
                 }
 
-                foreach (var co in R.IsWordCorrect)
-                    Console.WriteLine(co);
+                //foreach (var co in R.IsWordCorrect)
+                //    Console.WriteLine(co);
 
                 //for(int i =0; i < R.Words.Count(); ++i)
                 //{

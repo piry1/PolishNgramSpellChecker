@@ -39,7 +39,7 @@ namespace PolishNgramSpellChecker.Modules.Scoring
                     sentence += words[j] + " ";
 
                 sentence = sentence.TrimEnd();
-                var nCount = Database.Elastic.GetNgramNValue(sentence, scoringParams.OrderedMatch);
+                var nCount = Database.Elastic.GetNgramNValue(sentence, scoringParams.OrderedMatch, scoringParams.DetectionMethod);
                 var score = scoringParams.ScoreCountFunc(nCount, n);
                 SetJointsScore(ref jointsScore, i, n - 1, score);
             }

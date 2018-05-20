@@ -257,19 +257,19 @@ namespace PolishNgramSpellChecker.Database
 
         #region DETECTION MAIN
 
-        public static double GetNgramNValue(string text, bool ordered = true)
+        public static double GetNgramNValue(string text, bool ordered, string method)
         {
             string key = $"NgramValue:{text}+{ordered}";
-            return _cache.GetOrAdd(key, () => NgramNValue(text, ordered));
+            return _cache.GetOrAdd(key, () => NgramNValue(text, ordered, method));
         }
 
-        private static double NgramNValue(string words, bool ordered)
+        private static double NgramNValue(string words, bool ordered, string method)
         {
             int n = words.Split(' ').Length;
 
             var query = ordered ?
-                NgramValueQuery(n, words)
-                : NgramValue_no_Query(n, words);
+                NgramValueQuery(n, words, method)
+                : NgramValue_no_Query(n, words, method);
 
             var result = _client.Search<Ngram>(query);
             return result.Total == 0 ? 0 : result.Hits.First().Source.N;
@@ -277,22 +277,56 @@ namespace PolishNgramSpellChecker.Database
 
         #region Queries
 
-        private static SearchDescriptor<Ngram> NgramValueQuery(int n, string words)
+        private static SearchDescriptor<Ngram> NgramValueQuery(int n, string text, string method)
         {
+            var words = text.Split().ToList();
+            while (words.Count < 5)
+                words.Add(null);
+
             var query = new SearchDescriptor<Ngram>()
               .Index($"{_orderedSearchIndexPrefix}{n}grams")
               .Size(1)
               .Sort(a => a
                   .Descending(p => p.N))
               .Query(q => q
-                  .MatchPhrase(c => c
-                      .Field(p => p.s)
-                      .Query(words))
+                    .Bool(b => b
+                        .Must(m => m
+                            .Match(x => x
+                                .Field($"{method}1")
+                                .Query(words[0])
+                                .Operator(Operator.And)
+                            ),
+                            m => m
+                              .Match(x => x
+                                .Field($"{method}2")
+                                .Query(words[1])
+                                .Operator(Operator.And)
+                            ),
+                              m => m
+                              .Match(x => x
+                                .Field($"{method}3")
+                                .Query(words[2])
+                                .Operator(Operator.And)
+                            ),
+                                m => m
+                              .Match(x => x
+                                .Field($"{method}4")
+                                .Query(words[3])
+                                .Operator(Operator.And)
+                            ),
+                            m => m
+                            .Match(x => x
+                                .Field($"{method}5")
+                                .Query(words[4])
+                                .Operator(Operator.And)
+                            )
+                        )
+                )
               );
             return query;
         }
 
-        private static SearchDescriptor<Ngram> NgramValue_no_Query(int n, string words)
+        private static SearchDescriptor<Ngram> NgramValue_no_Query(int n, string words, string method)
         {
             var query = new SearchDescriptor<Ngram>()
                .Index($"{_noOrderedSearchIndexPrefix}{n}grams")
@@ -301,7 +335,7 @@ namespace PolishNgramSpellChecker.Database
                    .Descending(p => p.N))
                .Query(q => q
                    .Match(c => c
-                       .Field(p => p.w)
+                       .Field(method)
                        .Operator(Operator.And)
                        .Query(words))
                );
