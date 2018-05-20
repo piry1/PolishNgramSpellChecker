@@ -25,7 +25,7 @@ namespace PolishNgramSpellChecker
             //Console.WriteLine("------------------------------");
             var score = scoringModule.Score(words, spellCheckerParams);
 
-            var shouldSkip = spellCheckerParams.CanSkip ?
+            var shouldSkip = spellCheckerParams.UseDetection ?
                 scoringModule.ShouldSkip(score, spellCheckerParams.MinPoints)
                 : null;
 

@@ -6,7 +6,7 @@ namespace PolishNgramSpellChecker
     {
         string OriginalText { get; }
         string[] Words { get; }
-        string[] CorrectTextSugestions { get; }
+     //   string[] CorrectTextSugestions { get; }
         double[] JointsScore { get; }
         double[] WordsScore { get; }
         Dictionary<string, double>[] WordsSugestions { get; }

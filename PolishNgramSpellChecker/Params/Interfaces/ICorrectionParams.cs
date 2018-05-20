@@ -14,6 +14,6 @@ namespace PolishNgramSpellChecker.Params.Interfaces
         double MinScoreSpace { get; set; }
         bool Recursive { get; set; }
         string CorrectionMethod { get; set; }
-        bool CanSkip { get; set; }
+        bool UseDetection { get; set; }
     }
 }

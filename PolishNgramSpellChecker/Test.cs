@@ -29,8 +29,8 @@ namespace PolishNgramSpellChecker
                 MinScoreSpace = 0,
                 CorrectionMethod = "d",
                 DetectionMethod = "w",
-                CanSkip = true,
-                MinPoints = 1,
+                UseDetection = true,
+                MinPoints = 20,
                 ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
             };
             while (true)

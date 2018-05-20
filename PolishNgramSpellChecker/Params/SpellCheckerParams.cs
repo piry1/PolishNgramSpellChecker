@@ -13,7 +13,7 @@ namespace PolishNgramSpellChecker.Params
         public bool Recursive { get; set; } = false;
         public bool OrderedMatch { get; set; } = false;
         public bool ScoreMulti { get; set; } = false;
-        public bool CanSkip { get; set; } = false;
+        public bool UseDetection { get; set; } = true;
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
         public string DetectionMethod { get; set; } = "w";
 
@@ -25,14 +25,14 @@ namespace PolishNgramSpellChecker.Params
         public string ToCsvString()
         {
             return $"MinN;MaxN;MinScoreSpace;MinPoints;Method;Recursive;OrderedMatch;ScoreMulti;CanSkip\n" +
-                $"{MinN};{MaxN};{MinScoreSpace};{MinPoints};{CorrectionMethod};{Recursive};{OrderedMatch};{ScoreMulti};{CanSkip}";
+                $"{MinN};{MaxN};{MinScoreSpace};{MinPoints};{CorrectionMethod};{Recursive};{OrderedMatch};{ScoreMulti};{UseDetection}";
         }
 
         public SpellCheckerParams GetCopy()
         {
             return new SpellCheckerParams()
             {
-                CanSkip = CanSkip,
+                UseDetection = UseDetection,
                 ScoreMulti = ScoreMulti,
                 OrderedMatch = OrderedMatch,
                 Recursive = Recursive,

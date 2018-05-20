@@ -22,7 +22,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
             MinScoreSpace = 0.0,
             CorrectionMethod = "w",
             MinPoints = 0.1,
-            CanSkip = false,
+            UseDetection = false,
             ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
         };
 
