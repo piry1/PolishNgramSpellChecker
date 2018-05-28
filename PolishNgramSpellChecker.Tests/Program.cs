@@ -38,23 +38,29 @@ namespace PolishNgramSpellChecker.Tests
 
             for (int i = 0; i < 80; ++i)
                 paramVector[i] = 0.01 * i;
-            
+
+            var sentences = PreparationModule.LoadTestFile(@"Data/testScim.txt", spellChecker);
             var textList = new List<Sentence[]>();
+
             if (File.Exists(@"Data/testScimSentences.json"))
                 textList = MisspellsGenerationModule.DeserializeText(@"Data/testScimSentences.json");
             else
-            {              
-                var sentences = PreparationModule.LoadTestFile(@"Data/testScim.txt", spellChecker);
+            {
                 textList = MisspellsGenerationModule.GenerateMisspelledTexts(sentences, 2, "w", Nest.Fuzziness.Auto);
                 MisspellsGenerationModule.SerializeTexts(textList, @"Data/testScimSentences.json");
             }
 
             Console.WriteLine("Start Testing");
 
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            TestModule.RunTests(textList, param, paramVector, paramName);
-            watch.Stop();
-            Console.WriteLine($"{watch.ElapsedMilliseconds / 1000}s - time");
+            //List<string[]> test = new List<string[]>();
+            //test.Add(("Ala ma kota i 2 psy").Split());
+           
+            var res = CoverModule.Coverage(sentences, 5);
+            Console.WriteLine($"Coverage: {res}");
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+            //TestModule.RunTests(textList, param, paramVector, paramName);
+            //watch.Stop();
+            //Console.WriteLine($"{watch.ElapsedMilliseconds / 1000}s - time");
 
             Console.WriteLine("END");
             Console.ReadKey();

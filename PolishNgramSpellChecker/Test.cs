@@ -15,7 +15,7 @@ namespace PolishNgramSpellChecker
 {
     static class Test
     {
-        static void Main()
+        static void Main() 
         {
             Console.WriteLine("Start");
             Elastic.SetConnection();
@@ -31,8 +31,8 @@ namespace PolishNgramSpellChecker
                 DetectionMethod = "w",
                 UseDetection = true,
                 MinPoints = 20,
-                ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
-            };
+                ScoreCountFunc = (d, n) => Math.Pow(10, n) * d / 1000
+        };
             while (true)
             {
                 var text = Console.ReadLine();

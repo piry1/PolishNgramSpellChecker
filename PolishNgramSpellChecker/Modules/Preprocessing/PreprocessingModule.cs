@@ -3,7 +3,7 @@ using PolishNgramSpellChecker.Modules.Preprocessing.NamesFilters;
 
 namespace PolishNgramSpellChecker.Modules.Preprocessing
 {
-    internal static class PreprocessingModule
+    public static class PreprocessingModule
     {
         public static string[] Process(string text)
         {
