@@ -5,7 +5,7 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing
 {
     public static class PreprocessingModule
     {
-        public static string[] Process(string text)
+        public static string[] Process(string text, bool useTags = true)
         {
             var words = text.Trim().Split(' ');
 
@@ -18,8 +18,11 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing
 
             for (int i = 0; i < words.Length; ++i)
             {
-                words[i] = CheckNumber(words[i]);
-                words[i] = CheckNames(words[i]);
+                if (useTags)
+                {
+                    words[i] = CheckNumber(words[i]);
+                    words[i] = CheckNames(words[i]);
+                }
                 words[i] = words[i].ToLower();
             }
 

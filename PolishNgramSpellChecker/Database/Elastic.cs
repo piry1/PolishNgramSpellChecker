@@ -27,6 +27,21 @@ namespace PolishNgramSpellChecker.Database
 
         #region UNIGRAMS
 
+        public static int CheckWord(string word)
+        {
+            var query = new Nest.SearchDescriptor<Ngram>()
+               .Index("unigrams")
+               .Size(1)            
+               .Query(q => q
+                   .Match(x => x
+                       .Field("w1")
+                       .Query(word)
+                   )
+               );
+            var result = _client.Search<Ngram>(query);
+            return result.Hits.Count() == 0 ? 0 : result.Hits.First().Source.N;
+        }
+
         public static Dictionary<string, int> GetSimilarWords(string word, string method, Fuzziness fuzziness, int prefixLength = 1)
         {
             string key = $"GetSimilarWords+{word}+{method}+{fuzziness}+{prefixLength}";
@@ -95,6 +110,9 @@ namespace PolishNgramSpellChecker.Database
             string searchedWord = words[idx];
             Dictionary<int, string> surWords = new Dictionary<int, string>();
 
+            string field = method == "dd" ? "d" : "w";
+            method = method == "dd" ? "d" : method;
+
             for (int i = 0; i < 5; ++i)
             {
                 if (i != idx)
@@ -118,25 +136,25 @@ namespace PolishNgramSpellChecker.Database
                     .Bool(b => b
                         .Must(m => m
                             .Match(x => x
-                                .Field($"w{surWords.ElementAt(0).Key}")
+                                .Field($"{field}{surWords.ElementAt(0).Key}")
                                 .Query(surWords.ElementAt(0).Value)
                                 .Operator(Operator.And)
                             ),
                             m => m
                               .Match(x => x
-                                .Field($"w{surWords.ElementAt(1).Key}")
+                                .Field($"{field}{surWords.ElementAt(1).Key}")
                                 .Query(surWords.ElementAt(1).Value)
                                 .Operator(Operator.And)
                             ),
                               m => m
                               .Match(x => x
-                                .Field($"w{surWords.ElementAt(2).Key}")
+                                .Field($"{field}{surWords.ElementAt(2).Key}")
                                 .Query(surWords.ElementAt(2).Value)
                                 .Operator(Operator.And)
                             ),
                                 m => m
                               .Match(x => x
-                                .Field($"w{surWords.ElementAt(3).Key}")
+                                .Field($"{field}{surWords.ElementAt(3).Key}")
                                 .Query(surWords.ElementAt(3).Value)
                                 .Operator(Operator.And)
                             ),
@@ -161,6 +179,8 @@ namespace PolishNgramSpellChecker.Database
 
         private static Dictionary<string, double> NgramFuzzyMatch_no(int idx, string[] words, string method)
         {
+            string field = method == "dd" ? "d" : "w";
+            method = method == "dd" ? "d" : method;
             var word = words[idx];
             List<string> sWords = words.ToList();
             sWords.RemoveAt(idx);
@@ -176,7 +196,7 @@ namespace PolishNgramSpellChecker.Database
                     .Bool(b => b
                         .Must(m => m
                             .Match(x => x
-                                .Field(f => f.w)
+                                .Field(field)
                                 .Query(stringWords)
                                 .Operator(Operator.And)
                             ),

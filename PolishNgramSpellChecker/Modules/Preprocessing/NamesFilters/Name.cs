@@ -9,8 +9,8 @@ namespace PolishNgramSpellChecker.Modules.Preprocessing.NamesFilters
     internal class Name
     {
         public string Value { get; }
-        public int[] MaleCases { get; } = new int[6];
-        public int[] FemaleCases { get; } = new int[6];
+        public int[] MaleCases { get; } = new int[7];
+        public int[] FemaleCases { get; } = new int[7];
 
         public Name(string name)
         {

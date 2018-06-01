@@ -26,11 +26,11 @@ namespace PolishNgramSpellChecker
                 ScoreMulti = false,
                 MaxN = 2,
                 OrderedMatch = true,
-                MinScoreSpace = 0,
-                CorrectionMethod = "d",
+                MinScoreSpace = 0.2,
+                CorrectionMethod = "dd",
                 DetectionMethod = "w",
-                UseDetection = true,
-                MinPoints = 20,
+                UseDetection = false,
+                MinPoints = 0.1,
                 ScoreCountFunc = (d, n) => Math.Pow(10, n) * d / 1000
         };
             while (true)

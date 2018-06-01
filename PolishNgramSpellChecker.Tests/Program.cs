@@ -54,9 +54,15 @@ namespace PolishNgramSpellChecker.Tests
 
             //List<string[]> test = new List<string[]>();
             //test.Add(("Ala ma kota i 2 psy").Split());
-           
-            var res = CoverModule.Coverage(sentences, 5);
-            Console.WriteLine($"Coverage: {res}");
+
+
+            for (int i = 1; i < 6;++i){
+                Console.WriteLine($"N: {i} ************************");
+                var res = CoverModule.Coverage(sentences, i, true, 1);
+                Console.WriteLine($"Coverage 1: {res * 100}");
+                var res2 = CoverModule.Coverage(sentences, i, true, 2);
+                Console.WriteLine($"Coverage 2: {res2 * 100}");
+            }
             //var watch = System.Diagnostics.Stopwatch.StartNew();
             //TestModule.RunTests(textList, param, paramVector, paramName);
             //watch.Stop();

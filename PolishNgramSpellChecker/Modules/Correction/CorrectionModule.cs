@@ -69,14 +69,18 @@ namespace PolishNgramSpellChecker.Modules.Correction
             double minScore = score = suggestions.ContainsKey(word)     // get score for start word
                  ? suggestions[word] : 0;
 
-           // int n = 0;
-            foreach (var possibleWord in suggestions)                   // add suggestions 
-                if ((possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough
-                                                                        /*&& (n <= 3 || minScore != 0)*/)
-                {
+            var sug = suggestions.Where(x => x.Value > minScore).ToList(); // normalize suggestions above minScore
+            var sum = sug.Sum(x => x.Value) + minScore;
+            minScore = minScore / sum;
+            sug = sug.Select(x => new KeyValuePair<string, double>(x.Key, x.Value / sum)).ToList();
+            var k = sug.Count();
+
+            // int n = 0;
+            foreach (var possibleWord in sug)                   // add suggestions 
+                if (possibleWord.Value > minScore + minScoreSpace)     // if suggestion score is high enough                                                                                       
+                                                                       // if (possibleWord.Value > minScore + (minScoreSpace / (k * 0.5 + 0.5)))
                     results.Add(possibleWord.Key, possibleWord.Value);
-                    //  ++n;
-                }
+
             results.Add(word, minScore);                                // and add start word at the end
 
             return results;
@@ -95,7 +99,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
 
             var possibleWordReplacements = GetSuggestions(words, wordIndex, spellParams);
 
-           // int n = 0;
+            // int n = 0;
             double minScore = possibleWordReplacements.ContainsKey(words[wordIndex])
                 ? possibleWordReplacements[words[wordIndex]]
                 : 0;
