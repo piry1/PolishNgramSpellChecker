@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PolishNgramSpellChecker.Tests.Model
 {
@@ -28,6 +25,12 @@ namespace PolishNgramSpellChecker.Tests.Model
                 Suggestions[i] = new List<string>();
                 CorrectSuggestionPossition[i] = 0;
             }
+        }
+
+        public void SetIsCorrect()
+        {
+            for (int i = 0; i < IsWordCorrect.Length; ++i)
+                IsWordCorrect[i] = OriginalWords[i] == Words[i];
         }
 
     }

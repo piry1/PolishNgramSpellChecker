@@ -20,14 +20,14 @@ namespace PolishNgramSpellChecker.Tests
             SpellChecker spellChecker = new SpellChecker();
             SpellCheckerParams param = new SpellCheckerParams()
             {
-                Recursive = false,
-                ScoreMulti = false,
+                ScoreMulti = true,
+                DetectionMethod = "w",
                 MaxN = 2,
                 MinN = 2,
                 OrderedMatch = true,
                 MinScoreSpace = 0.0,
                 CorrectionMethod = "w",
-                MinPoints = 0.1,
+                MinPoints = 0.05,
                 UseDetection = true,
                 ScoreCountFunc = ScoreCountFunction.GetFunc(ScoreCountFunctions.Pow10ByN)
             };
@@ -38,35 +38,22 @@ namespace PolishNgramSpellChecker.Tests
 
             for (int i = 0; i < 80; ++i)
                 paramVector[i] = 0.01 * i;
+                 
+            var textList = MisspellsGenerationModule.GetMisspeledSet(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.Clean);
 
-            var sentences = PreparationModule.LoadTestFile(@"Data/testScim.txt", spellChecker);
-            var textList = new List<Sentence[]>();
+            // ****************** testing coverage ******************
+            //for (int i = 1; i < 5;++i){
+            //    Console.WriteLine($"N: {i} ************************");
+            //    var res = CoverModule.Coverage(sentences, i, true, 1);
+            //    Console.WriteLine($"Coverage 1: {res * 100}");
+            //    var res2 = CoverModule.Coverage(sentences, i, false, 1);
+            //    Console.WriteLine($"Coverage 2: {res2 * 100}");
+            //}
 
-            if (File.Exists(@"Data/testScimSentences.json"))
-                textList = MisspellsGenerationModule.DeserializeText(@"Data/testScimSentences.json");
-            else
-            {
-                textList = MisspellsGenerationModule.GenerateMisspelledTexts(sentences, 2, "w", Nest.Fuzziness.Auto);
-                MisspellsGenerationModule.SerializeTexts(textList, @"Data/testScimSentences.json");
-            }
-
-            Console.WriteLine("Start Testing");
-
-            //List<string[]> test = new List<string[]>();
-            //test.Add(("Ala ma kota i 2 psy").Split());
-
-
-            for (int i = 1; i < 6;++i){
-                Console.WriteLine($"N: {i} ************************");
-                var res = CoverModule.Coverage(sentences, i, true, 1);
-                Console.WriteLine($"Coverage 1: {res * 100}");
-                var res2 = CoverModule.Coverage(sentences, i, true, 2);
-                Console.WriteLine($"Coverage 2: {res2 * 100}");
-            }
-            //var watch = System.Diagnostics.Stopwatch.StartNew();
-            //TestModule.RunTests(textList, param, paramVector, paramName);
-            //watch.Stop();
-            //Console.WriteLine($"{watch.ElapsedMilliseconds / 1000}s - time");
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            TestModule.RunTests(textList, param, paramVector, paramName);
+            watch.Stop();
+            Console.WriteLine($"{watch.ElapsedMilliseconds / 1000}s - time");
 
             Console.WriteLine("END");
             Console.ReadKey();
