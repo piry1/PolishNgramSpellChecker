@@ -19,9 +19,14 @@ namespace PolishNgramSpellChecker.Modules.Orthography
             bool[] result = new bool[words.Length];
 
             for (int i = 0; i < words.Length; ++i)
-                result[i] = (_polishDictionary.Contains(words[i].ToLower()) || words[i].First() == '_');
+                result[i] = IsCorrect(words[i]);
 
             return result;
+        }
+
+        public bool IsCorrect(string word)
+        {
+            return _polishDictionary.Contains(word.ToLower()) || word.First() == '_';
         }
 
         private void LoadDictionary(string path)

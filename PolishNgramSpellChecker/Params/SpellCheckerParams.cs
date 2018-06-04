@@ -1,12 +1,13 @@
 ﻿using System;
 using PolishNgramSpellChecker.Params.Interfaces;
+using Nest;
 
 namespace PolishNgramSpellChecker.Params
 {
     public class SpellCheckerParams : IScoringParams, ICorrectionParams
     {
         public int MinN { get; set; } = 2;
-        public int MaxN { get; set; } = 5;
+        public int MaxN { get; set; } = 3;
         public double MinScoreSpace { get; set; } = 0.35;
         public double MinPoints { get; set; } = 20;
         public string CorrectionMethod { get; set; } = "w";
@@ -16,6 +17,7 @@ namespace PolishNgramSpellChecker.Params
         public bool UseDetection { get; set; } = true;
         public Func<double, double, double> ScoreCountFunc { get; set; } = (d, d1) => d;
         public string DetectionMethod { get; set; } = "w";
+        public Fuzziness Fuzziness { get; set; } = Fuzziness.Auto;
 
         public override string ToString()
         {
@@ -24,8 +26,8 @@ namespace PolishNgramSpellChecker.Params
 
         public string ToCsvString()
         {
-            return $"MinN;MaxN;MinScoreSpace;MinPoints;Method;Recursive;OrderedMatch;ScoreMulti;CanSkip\n" +
-                $"{MinN};{MaxN};{MinScoreSpace};{MinPoints};{CorrectionMethod};{Recursive};{OrderedMatch};{ScoreMulti};{UseDetection}";
+            return $"MinN;MaxN;MinScoreSpace;CorrectionMethod;OrderedMatch;ScoreMulti;UseDetection;MinPoints;DetectionMethod\n" +
+                $"{MinN};{MaxN};{MinScoreSpace};{CorrectionMethod};{OrderedMatch};{ScoreMulti};{UseDetection};{MinPoints};{DetectionMethod}";
         }
 
         public SpellCheckerParams GetCopy()
@@ -41,9 +43,11 @@ namespace PolishNgramSpellChecker.Params
                 MaxN = MaxN,
                 MinN = MinN,
                 MinScoreSpace = MinScoreSpace,
-                ScoreCountFunc = ScoreCountFunc
-        };
+                ScoreCountFunc = ScoreCountFunc,
+                DetectionMethod = DetectionMethod,
+                Fuzziness = Fuzziness
+            };
 
+        }
     }
-}
 }

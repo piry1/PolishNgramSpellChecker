@@ -123,7 +123,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
         {
             Dictionary<string, double> results = new Dictionary<string, double>();
 
-            for (int n = spellParams.MaxN; n > 1 && results.Count == 0; n--)    // search from biggest n-gram to smallest
+            for (int n = spellParams.MaxN; n >= spellParams.MinN && results.Count == 0; n--)    // search from biggest n-gram to smallest
             {
                 var nGrams = GetSurroundingWords(words, wordIndex, n);          // get n-grams with WORD at different positions
                 var suggestionsList = GetSuggestions(nGrams, spellParams);      // get suggestions using these n-grams
@@ -139,7 +139,7 @@ namespace PolishNgramSpellChecker.Modules.Correction
             var suggestionsList = new List<Dictionary<string, double>>();
             foreach (var nGram in nGrams)
             {
-                var suggestions = Elastic.GetSimilarWords(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.CorrectionMethod);
+                var suggestions = Elastic.GetSimilarWords(nGram.Key, nGram.Value, spellParams.OrderedMatch, spellParams.CorrectionMethod, spellParams.Fuzziness);
                 suggestionsList.Add(suggestions);
             }
             return suggestionsList;

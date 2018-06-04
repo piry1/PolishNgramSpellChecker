@@ -87,24 +87,23 @@ namespace PolishNgramSpellChecker.Database
 
             return results;
         }
-
         #endregion
 
         #region FUZZY DETECTION AND CORRECTION 
 
         // FUZZY MAIN
-        public static Dictionary<string, double> GetSimilarWords(int idx, string[] words, bool ordered, string method)
+        public static Dictionary<string, double> GetSimilarWords(int idx, string[] words, bool ordered, string method, Fuzziness fuzziness)
         {
             string key = $"NgramFuzzyMatch+{idx}+{string.Join(" ", words)}+{ordered}+{method}";
 
             var result = _cache.GetOrAdd(key, () => ordered ?
-                NgramFuzzyMatch(idx, words, method)
-                : NgramFuzzyMatch_no(idx, words, method));
+                NgramFuzzyMatch(idx, words, method, fuzziness)
+                : NgramFuzzyMatch_no(idx, words, method, fuzziness));
 
             return result;
         }
 
-        private static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, string method)
+        private static Dictionary<string, double> NgramFuzzyMatch(int idx, string[] words, string method, Fuzziness fuzziness)
         {
             var n = words.Length;
             string searchedWord = words[idx];
@@ -117,13 +116,6 @@ namespace PolishNgramSpellChecker.Database
             {
                 if (i != idx)
                     surWords.Add(i + 1, i < n ? words[i] : null);
-                //if (i < n)
-                //{
-                //    if (i != idx)
-                //        surWords.Add(i + 1, words[i]);
-                //}
-                //else
-                //    surWords.Add(i + 1, null);
             }
 
             #region QUERY
@@ -162,7 +154,7 @@ namespace PolishNgramSpellChecker.Database
                             .Match(x => x
                                 .Field($"{method}{idx + 1}")
                                 .Query(searchedWord)
-                                .Fuzziness(Fuzziness.Auto)
+                                .Fuzziness(fuzziness)
                                 .PrefixLength(1)
                                 .FuzzyTranspositions(true)
                                 .MaxExpansions(1000)
@@ -177,7 +169,7 @@ namespace PolishNgramSpellChecker.Database
             return CountPercentage(idx, result);
         }
 
-        private static Dictionary<string, double> NgramFuzzyMatch_no(int idx, string[] words, string method)
+        private static Dictionary<string, double> NgramFuzzyMatch_no(int idx, string[] words, string method, Fuzziness fuzziness)
         {
             string field = method == "dd" ? "d" : "w";
             method = method == "dd" ? "d" : method;
@@ -204,7 +196,7 @@ namespace PolishNgramSpellChecker.Database
                             .Match(x => x
                                 .Field(method)
                                 .Query(word)
-                                .Fuzziness(Fuzziness.Auto)
+                                .Fuzziness(fuzziness)
                                 .PrefixLength(1)
                                 .FuzzyTranspositions(true)
                                 .MaxExpansions(1000)

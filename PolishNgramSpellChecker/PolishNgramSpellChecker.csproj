@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Database\Elastic.cs" />
     <Compile Include="IScResponse.cs" />
+    <Compile Include="Modules\AfterCorrection\AfterCorrectionModule.cs" />
     <Compile Include="Modules\Orthography\OrthographyModule.cs" />
     <Compile Include="Modules\Preprocessing\PreprocessingModule.cs" />
     <Compile Include="Modules\Correction\CorrectionModule.cs" />

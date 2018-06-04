@@ -28,7 +28,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
 
         private static int ProcessLine(string[] line, int n, bool ordered, int minCount)
         {
-            bool[] results = new bool[line.Length];
+            bool[] results = new bool[line.Length];            
             bool[] tmp = new bool[n];
             for (int i = 0; i < n; ++i) tmp[i] = true;
 

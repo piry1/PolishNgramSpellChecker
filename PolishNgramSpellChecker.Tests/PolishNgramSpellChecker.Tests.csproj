@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Model\Sentence.cs" />
     <Compile Include="Modules\CoverModule.cs" />
+    <Compile Include="Modules\FinalTests.cs" />
     <Compile Include="Modules\MisspellsGenerationModule.cs" />
     <Compile Include="Modules\Morfeusz.cs" />
     <Compile Include="Modules\PreparationModule.cs" />

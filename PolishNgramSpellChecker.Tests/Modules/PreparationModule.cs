@@ -40,8 +40,9 @@ namespace PolishNgramSpellChecker.Tests.Modules
 
 
 
-            var text = File.ReadAllText(path);
-            
+            var text = File.ReadAllText($"Data//{Path.GetFileNameWithoutExtension(path)}.txt");
+
+
             var sentences = text.Split(new char[] { '.', '—', '…', '«', '»', ':', ';', '"', '”', '“', '„', '(', ')', '?', '!', '\n' });
             int len = sentences.Length;
             for (int i = 0; i < sentences.Length; ++i)

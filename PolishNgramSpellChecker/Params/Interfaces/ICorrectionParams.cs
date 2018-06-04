@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Nest;
 
 namespace PolishNgramSpellChecker.Params.Interfaces
 {
@@ -15,5 +11,6 @@ namespace PolishNgramSpellChecker.Params.Interfaces
         bool Recursive { get; set; }
         string CorrectionMethod { get; set; }
         bool UseDetection { get; set; }
+        Fuzziness Fuzziness { get; set; }
     }
 }
