@@ -12,7 +12,14 @@ namespace PolishNgramSpellChecker.Tests.Modules
     {
         static CoverModule() => Elastic.SetConnection();
 
-        public static double Coverage(List<string[]> text, int n, bool ordered = true, int minCount = 0)
+        public class CoverageResult
+        {
+            public int N { get; set; }
+            public double CoveragePercent { get; set; }
+            public double Ncoverage { get; set; }
+        }
+
+        public static CoverageResult Coverage(List<string[]> text, int n, bool ordered = true, int minCount = 0)
         {
             if (n < 1 || n > 5)
                 throw new Exception($"Wrong N-gram count: N = {n}");
@@ -23,12 +30,18 @@ namespace PolishNgramSpellChecker.Tests.Modules
             var results = data.Select(x => n == 1 ?
                 ProcessUnigramsLine(x, minCount) :
                 ProcessLine(x, n, ordered, minCount));
-            return (double)results.Sum() / count;
+
+            return new CoverageResult
+            {
+                N = n,
+                CoveragePercent = (double)results.Sum() / count,
+                Ncoverage = (double)data.Select(x => x.Length).Sum() / (double)text.Select(x => x.Length).Sum()
+            };
         }
 
         private static int ProcessLine(string[] line, int n, bool ordered, int minCount)
         {
-            bool[] results = new bool[line.Length];            
+            bool[] results = new bool[line.Length];
             bool[] tmp = new bool[n];
             for (int i = 0; i < n; ++i) tmp[i] = true;
 

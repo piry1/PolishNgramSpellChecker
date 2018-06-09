@@ -101,8 +101,10 @@ namespace PolishNgramSpellChecker.Tests.Modules
 
         public static void CompareMethods(List<Sentence[]> testTextsList, object[] values, string name, params SpellCheckerParams[] spellArgs)
         {
-            string f, tpr, fpr;
-            f = tpr = fpr = string.Empty;
+            string f, tpr, fpr, acc;
+            var time = new List<double>();
+
+            f = tpr = fpr = acc = string.Empty;
 
             foreach (var arg in spellArgs)
             {
@@ -110,6 +112,8 @@ namespace PolishNgramSpellChecker.Tests.Modules
                 f += string.Join(";", res.Select(x => x.ConfusionMatrix.F1score)) + "\n";
                 tpr += string.Join(";", res.Select(x => x.ConfusionMatrix.TPR)) + "\n";
                 fpr += string.Join(";", res.Select(x => x.ConfusionMatrix.FPR)) + "\n";
+                acc += string.Join(";", res.Select(x => x.ConfusionMatrix.ACC)) + "\n";
+                time.AddRange(res.Select(x => x.MeanWordTime));
             }
             string path = _resultPath + "CompareMethods/";
             if (!Directory.Exists(path))
@@ -117,7 +121,9 @@ namespace PolishNgramSpellChecker.Tests.Modules
             File.WriteAllText(path + "f.csv", f);
             File.WriteAllText(path + "tpr.csv", tpr);
             File.WriteAllText(path + "fpr.csv", fpr);
+            File.WriteAllText(path + "acc.csv", acc);
             File.WriteAllText(path + "param.csv", string.Join(";", values));
+            File.WriteAllText(path + "time.csv", string.Join(";", time));
         }
 
         public static List<TestResult> RunTests(List<Sentence[]> testTextsList, SpellCheckerParams spellParams, object[] testParams, string paramName)
@@ -246,22 +252,30 @@ namespace PolishNgramSpellChecker.Tests.Modules
             double[,] f1matrix = new double[a_params.Length, b_params.Length];
 
             string text = string.Empty;
-            text += string.Join("\n", results.Select(x => string.Join(";", x.Select(y => y.ConfusionMatrix.F1score))));
+            text += string.Join("\n", results.Select(x => string.Join(";", x.Select(y => y.ConfusionMatrix.F1score))));         
+            var maxf1 = results.Max(x => x.Max(y => y.ConfusionMatrix.F1score));
 
-            //var maxf1 = results.Max(x => x.Max(y => y.ConfusionMatrix.F1score));
-            //var bestResult = results.Select(x => x.Where(y => y.ConfusionMatrix.F1score == maxf1)).First().First();
-
-            //var text2 = $"\n\nBEST RESULT\n\n{bestResult.SpellCheckerParams.ToCsvString()}\n\n\n" +
-            //  $"{bestResult.ConfusionMatrix.ToString()}\n\n\n" +
-            //  $"{bestResult.SidxToString()}\n\n" +
-            //  $"time;meanTime\n{bestResult.Time / 1000};{bestResult.MeanWordTime}\n\n\n";
+            TestResult bestResult = null;
+            foreach(var test in results)
+            {
+                bestResult = test.Where(x => x.ConfusionMatrix.F1score == maxf1).FirstOrDefault();
+                if (bestResult != null)
+                    break;
+            }
+           
+            var text2 = $"\n\nBEST RESULT\n\n{bestResult.SpellCheckerParams.ToCsvString()}\n\n\n" +
+              $"{bestResult.ConfusionMatrix.ToString()}\n\n\n" +
+              $"{bestResult.SidxToString()}\n\n" +
+              $"time;meanTime\n{bestResult.Time / 1000};{bestResult.MeanWordTime}\n\n\n";
 
             string matrixPath = _resultPath + "MatrixTest";
             if (!Directory.Exists(matrixPath))
                 Directory.CreateDirectory(matrixPath);
 
             File.WriteAllText(matrixPath + "/matrix" + a_name + "-" + b_name + ".csv", text);
-            // File.WriteAllText(matrixPath + "/best" + a_name + "-" + b_name + ".csv", text2);
+            File.WriteAllText(matrixPath + "/params_a.csv", string.Join(";", a_params));
+            File.WriteAllText(matrixPath + "/params_b.csv", string.Join(";", b_params));
+            File.WriteAllText(matrixPath + "/best" + a_name + "-" + b_name + ".csv", text2);
         }
     }
 }

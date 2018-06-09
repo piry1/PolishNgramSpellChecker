@@ -271,7 +271,7 @@ namespace PolishNgramSpellChecker.Database
 
         public static double GetNgramNValue(string text, bool ordered, string method)
         {
-            string key = $"NgramValue:{text}+{ordered}";
+            string key = $"NgramValue:{text}+{ordered}+{method}";
             return _cache.GetOrAdd(key, () => NgramNValue(text, ordered, method));
         }
 
@@ -283,7 +283,7 @@ namespace PolishNgramSpellChecker.Database
                 NgramValueQuery(n, words, method)
                 : NgramValue_no_Query(n, words, method);
 
-            var result = _client.Search<Ngram>(query);
+            var result = _client.Search<Ngram>(query);       
             return result.Total == 0 ? 0 : result.Hits.First().Source.N;
         }
 
@@ -297,7 +297,7 @@ namespace PolishNgramSpellChecker.Database
 
             var query = new SearchDescriptor<Ngram>()
               .Index($"{_orderedSearchIndexPrefix}{n}grams")
-              .Size(1)
+              .Size(10)
               .Sort(a => a
                   .Descending(p => p.N))
               .Query(q => q

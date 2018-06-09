@@ -17,7 +17,11 @@ namespace PolishNgramSpellChecker.Tests
         {
             Console.WriteLine("Start");
 
-            FinalTests.CompareMethodsCorrection(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.NoDia, 2,2);
+            //FinalTests.CompareMethodsDetection(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.HeavyNoDia, 2, 2);
+           // FinalTests.DetectionCorrectionCrossTest(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.Shuffle, 2, 3, "dd");
+            FinalTests.CompareMethodsCorrection(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.Shuffle, 2, 3);
+
+            // FinalTests.CompareMethods(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.BazForm, 3, 3);
 
             //SpellChecker spellChecker = new SpellChecker();
             //SpellCheckerParams param = new SpellCheckerParams()
@@ -56,13 +60,20 @@ namespace PolishNgramSpellChecker.Tests
 
             //var textList = MisspellsGenerationModule.GetMisspeledSet(@"Data/niespokojni.txt", MisspellsGenerationModule.MistakeType.Misspells);
 
-            // ****************** testing coverage ******************
-            //for (int i = 1; i < 5;++i){
+            //******************testing coverage * *****************
+            //var sentences = PreparationModule.LoadTestFile(@"Data/niespokojni.txt", true);
+            //for (int i = 5; i < 6; ++i)
+            //{
             //    Console.WriteLine($"N: {i} ************************");
             //    var res = CoverModule.Coverage(sentences, i, true, 1);
-            //    Console.WriteLine($"Coverage 1: {res * 100}");
-            //    var res2 = CoverModule.Coverage(sentences, i, false, 1);
-            //    Console.WriteLine($"Coverage 2: {res2 * 100}");
+            //    Console.WriteLine($"Coverage or1: {res.CoveragePercent * 100}, Ngram Percent: {res.Ncoverage * 100}");
+            //    res = CoverModule.Coverage(sentences, i, true, 2);
+            //    Console.WriteLine($"Coverage or2: {res.CoveragePercent * 100}, Ngram Percent: {res.Ncoverage * 100}");
+
+            //    //var res2 = CoverModule.Coverage(sentences, i, false, 1);
+            //    //Console.WriteLine($"Coverage no_or1: {res2.CoveragePercent * 100}, Ngram Percent: {res2.Ncoverage * 100}");
+            //    //res2 = CoverModule.Coverage(sentences, i, false, 2);
+            //    //Console.WriteLine($"Coverage no_or2: {res2.CoveragePercent * 100}, Ngram Percent: {res2.Ncoverage * 100}");
             //}
 
             //var watch = System.Diagnostics.Stopwatch.StartNew();

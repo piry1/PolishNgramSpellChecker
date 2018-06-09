@@ -56,6 +56,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
 
         public static List<string> GetSimillarWords(string word)
         {
+            word = word.ToLower();
             List<string> result = new List<string>();
             List<string> suggestions = new List<string>();
             var lemmas = GetLemmas(word);
@@ -78,7 +79,7 @@ namespace PolishNgramSpellChecker.Tests.Modules
             if (len < 3) return null;
             if (len < 6) maxEdit = 1;
             var editDist = EditDistance(word, suggestion);
-            return editDist > 0 && editDist <= maxEdit ? suggestion : null;
+            return editDist > 0 && editDist <= maxEdit && word[0] == suggestion[0] ? suggestion : null;
         }
 
         private static int EditDistance(string original, string modified)
